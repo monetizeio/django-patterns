@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === python_patterns -----------------------------------------------------===
+# === django_patterns -----------------------------------------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
