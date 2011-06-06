@@ -58,25 +58,27 @@ for dirpath, dirnames, filenames in os.walk('django_patterns'):
       data_files.append(os.path.join(prefix, f))
 
 setup(name='django-patterns',
-      version=get_version().replace(' ', '-'),
-      description='A collection of commonly used Python patterns.',
-      author='RokuSigma Inc.',
-      author_email='django-patterns@roku-sigma.com',
-      url='http://www.github.com/rokusigma/django-patterns/',
-      download_url='http://github.com/rokusigma/django-patterns/tarball/master',
-      package_dir={'django_patterns': 'django_patterns'},
-      packages=packages,
-      package_data={'django_patterns': data_files},
-      classifiers=['Development Status :: 1 - Planning',
-                   'Environment :: Web Environment',
-                   'Framework :: Django',
-                   'Intended Audience :: Developers',
-                   'License :: Other/Proprietary License',
-                   'Operating System :: OS Independent',
-                   'Programming Language :: Python',
-                   'Topic :: Software Development :: Libraries :: Python Modules',
-                   'Topic :: Utilities'],
-      )
+  version=get_version().replace(' ', '-'),
+  description='A collection of commonly used Python patterns.',
+  author='RokuSigma Inc.',
+  author_email='django-patterns@roku-sigma.com',
+  url='http://www.github.com/rokusigma/django-patterns/',
+  download_url='http://github.com/rokusigma/django-patterns/tarball/master',
+  package_dir={'django_patterns': 'django_patterns'},
+  packages=packages,
+  package_data={'django_patterns': data_files},
+  classifiers=[
+    'Development Status :: 1 - Planning',
+    'Environment :: Web Environment',
+    'Framework :: Django',
+    'Intended Audience :: Developers',
+    'License :: Other/Proprietary License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Topic :: Utilities',
+  ],
+)
 
 # ===----------------------------------------------------------------------===
 # End of File
