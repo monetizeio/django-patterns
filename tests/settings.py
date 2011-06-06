@@ -208,6 +208,11 @@ INSTALLED_APPS = (
   # Uncomment the next line to enable admin documentation:
   # 'django.contrib.admindocs',
 
+  # Django-extensions is a dependency of Django-patterns, and provides the
+  # ever-useful shell_plus command for launching an ipython interactive
+  # development shell.
+  'django_extensions',
+
   # Our Django application, whose testing is the purpose of this project.
   'django_patterns',
 

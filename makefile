@@ -43,7 +43,9 @@ check: build/.stamp-h
 
 .PHONY: shell
 shell: build/.stamp-h
-	./build/bin/ipython
+	./build/bin/python tests/manage.py shell_plus \
+	  --print-sql \
+	  --ipython
 
 .PHONY: mostlyclean
 mostlyclean:
