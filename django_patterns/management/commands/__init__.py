@@ -1,6 +1,9 @@
-# === makefile ------------------------------------------------------------===
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# === django_patterns.management.commands ---------------------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
-# 
+#
 # RokuSigma Inc. (the “Company”) Confidential
 #
 # NOTICE: All information contained herein is, and remains the property of the
@@ -26,62 +29,6 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-.PHONY: all
-all: build/.stamp-h
-
-.PHONY: check
-check: build/.stamp-h
-	./build/bin/python -Wall tests/manage.py test \
-	  --settings=tests.settings \
-	  --with-coverage \
-	  --cover-package=django_patterns \
-	  --with-xunit \
-	  --xunit-file="tests/log/nosetests.xml" \
-	  --with-xcoverage \
-	  --xcoverage-file="tests/log/coverage.xml" \
-	  django_patterns
-
-.PHONY: shell
-shell: build/.stamp-h
-	./build/bin/ipython
-
-.PHONY: mostlyclean
-mostlyclean:
-
-.PHONY: clean
-clean: mostlyclean
-	-rm -rf build
-
-.PHONY: distclean
-distclean: clean
-	-rm -rf cache/pypi/*
-
-.PHONY: maintainer-clean
-maintainer-clean: distclean
-	@echo 'This command is intended for maintainers to use; it'
-	@echo 'deletes files that may need special tools to rebuild.'
-
-.PHONY: dist
-dist:
-
-# ===--------------------------------------------------------------------===
-# ===--------------------------------------------------------------------===
-
-build/.stamp-h: conf/requirements.pip
-	${MAKE} clean
-	mkdir -p cache/pypi
-	./sandbox/build/bin/virtualenv \
-	  --clear \
-	  --no-site-packages \
-	  --distribute \
-	  --never-download \
-	  --prompt="(django-patterns) " \
-	  build
-	./build/bin/python build/bin/pip install \
-	  --download-cache="`pwd`"/cache/pypi \
-	  -r conf/requirements.pip
-	touch build/.stamp-h
-
-# ===--------------------------------------------------------------------===
+# ===----------------------------------------------------------------------===
 # End of File
-# ===--------------------------------------------------------------------===
+# ===----------------------------------------------------------------------===

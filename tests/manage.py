@@ -1,6 +1,9 @@
-# === makefile ------------------------------------------------------------===
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# === tests/manage.py -----------------------------------------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
-# 
+#
 # RokuSigma Inc. (the “Company”) Confidential
 #
 # NOTICE: All information contained herein is, and remains the property of the
@@ -26,62 +29,21 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-.PHONY: all
-all: build/.stamp-h
+#!/usr/bin/env python
+from django.core.management import execute_manager
+import imp
+try:
+  imp.find_module('settings') # Assumed to be in the same directory.
+except ImportError:
+  import sys
+  sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n" % __file__)
+  sys.exit(1)
 
-.PHONY: check
-check: build/.stamp-h
-	./build/bin/python -Wall tests/manage.py test \
-	  --settings=tests.settings \
-	  --with-coverage \
-	  --cover-package=django_patterns \
-	  --with-xunit \
-	  --xunit-file="tests/log/nosetests.xml" \
-	  --with-xcoverage \
-	  --xcoverage-file="tests/log/coverage.xml" \
-	  django_patterns
+import settings
 
-.PHONY: shell
-shell: build/.stamp-h
-	./build/bin/ipython
+if __name__ == "__main__":
+  execute_manager(settings)
 
-.PHONY: mostlyclean
-mostlyclean:
-
-.PHONY: clean
-clean: mostlyclean
-	-rm -rf build
-
-.PHONY: distclean
-distclean: clean
-	-rm -rf cache/pypi/*
-
-.PHONY: maintainer-clean
-maintainer-clean: distclean
-	@echo 'This command is intended for maintainers to use; it'
-	@echo 'deletes files that may need special tools to rebuild.'
-
-.PHONY: dist
-dist:
-
-# ===--------------------------------------------------------------------===
-# ===--------------------------------------------------------------------===
-
-build/.stamp-h: conf/requirements.pip
-	${MAKE} clean
-	mkdir -p cache/pypi
-	./sandbox/build/bin/virtualenv \
-	  --clear \
-	  --no-site-packages \
-	  --distribute \
-	  --never-download \
-	  --prompt="(django-patterns) " \
-	  build
-	./build/bin/python build/bin/pip install \
-	  --download-cache="`pwd`"/cache/pypi \
-	  -r conf/requirements.pip
-	touch build/.stamp-h
-
-# ===--------------------------------------------------------------------===
+# ===----------------------------------------------------------------------===
 # End of File
-# ===--------------------------------------------------------------------===
+# ===----------------------------------------------------------------------===

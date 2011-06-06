@@ -3,3 +3,6 @@
 sandbox
 build/*
 cache/pypi/*
+.coverage
+tests/log/coverage.xml
+tests/log/nosetests.xml
