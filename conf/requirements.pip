@@ -6,3 +6,4 @@ ipython==0.10.2
 nose==1.0.0
 nose-exclude==0.1.5
 nosexcover==1.0.5
+-e git+ssh://git@redmine.roku-sigma.com/python-patterns@7566f8b2c74295bbcdf39ef79c48936f7acbd1c1#egg=python_patterns-dev

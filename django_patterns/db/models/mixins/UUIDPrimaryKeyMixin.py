@@ -38,6 +38,8 @@ from django.utils.translation import ugettext_lazy as _
 # Django-extensions, additional model fields
 import django_extensions.db.fields
 
+from python_patterns.utils.decorators import Property
+
 class UUIDPrimaryKeyMixin(django.db.models.Model):
   """
   The UUIDPrimaryKeyMixin leverages the database-independent UUIDField
@@ -93,6 +95,31 @@ class UUIDPrimaryKeyMixin(django.db.models.Model):
     # This setting tells Django that
     primary_key = True
   )
+
+  @Property
+  def uuid():
+    """
+    An alias for ‘id’, the UUID primary-key. This alias exists so that code
+    can work interchangeably with objects that derive from UUIDStampedMixin
+    (and therefore have a regular ‘uuid’ field) and those that derive from
+    UUIDPrimaryKeyMixin (and therefore have ‘id’ as their UUID value).
+
+    NOTE: fset() and fdel() are set on this property, despite having no real
+          semantic value. Django configures the Python class for models in
+          such a way that one can assign values to a primary-key and delete
+          fields entirely. These operations have no semantic value and cause
+          validation errors when one tries to save the now modified instance.
+          Defining fset() and fdel() ensures that there is absolutely no
+          detectable between UUIDPrimaryKeyMixin.id and
+          UUIDPrimaryKeyMixin.uuid.
+    """.strip()
+    def fget(self):
+      return self.id
+    def fset(self, value):
+      self.id = value
+    def fdel(self):
+      del self.id
+    return locals()
 
   ##################################
   ## Pythonic Instance Attributes ##

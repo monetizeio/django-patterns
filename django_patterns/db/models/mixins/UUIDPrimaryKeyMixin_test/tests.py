@@ -35,6 +35,9 @@ import django.core.exceptions
 # Django-core, testing
 import django.test
 
+# Python standard library, unit-testing framework
+from django.utils import unittest
+
 # Django-extensions, additional model fields
 import django_extensions.db.fields
 
@@ -89,7 +92,7 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
     new_obj.id = obj.id
     self.assertRaisesRegexp(
       django.core.exceptions.ValidationError,
-      u'UUID primary-key model with this Universally unique identifier already exists',
+      u'with this Universally unique identifier already exists',
       new_obj.validate_unique,
     )
 
@@ -110,6 +113,22 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
     """
     obj = UUIDPrimaryKeyModel.objects.filter()[0]
     self.assertRegexpMatches(unicode(obj), r'[\w]{8}(-[\w]{4}){3}-[\w]{12}')
+
+from django_patterns.db.models.mixins.UUIDStampedMixin_test import tests
+class UUIDPrimaryKeyAsStampedModelTests(tests.UUIDStampedModelTests):
+  """
+  Tests that models which derive from UUIDPrimaryKeyMixin (whose UUID field is
+  ‘id’ with a @Property alias at ‘uuid’) work as a stand-in for code expecting
+  models derived from UUIDStampedMixin (whose UUID field is ‘uuid’).
+  """
+  def __init__(self, *args, **kwargs):
+    super(UUIDPrimaryKeyAsStampedModelTests, self).__init__(*args, **kwargs)
+    self._model = UUIDPrimaryKeyModel
+    self._form  = UUIDPrimaryKeyModelForm
+
+  @unittest.skip(u"UUID field does not exist as a Django field in UUIDPrimaryKeyModel.")
+  def test_uuid_field_is_uuid(self):
+    pass
 
 # ===----------------------------------------------------------------------===
 # End of File
