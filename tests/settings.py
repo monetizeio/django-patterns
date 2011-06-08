@@ -242,14 +242,13 @@ argv = [
   "discover_unittest_modules",
   "django_patterns",
 ]
-if argv[0] != os.path.abspath(sys.argv[0]):
-  if argv[1] != argv[1]:
-    apps = subprocess.check_output([sys.executable] + argv)
-    apps = list(set(apps.split('\n')))
-    if '' in apps:
-      apps.remove('')
-    for app in apps:
-      INSTALLED_APPS += (app,)
+if argv[0] != os.path.abspath(sys.argv[0]) or argv[1] != sys.argv[1]:
+  apps = subprocess.check_output([sys.executable] + argv)
+  apps = list(set(apps.split('\n')))
+  if '' in apps:
+    apps.remove('')
+  for app in apps:
+    INSTALLED_APPS += (app,)
 
 ##
 # The django_nose test runner uses nose under the hood (obviously) and is
