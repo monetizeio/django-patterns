@@ -1,8 +1,6 @@
 *.pyc
 .*.swp
-sandbox
-build/*
-cache/pypi/*
+.cache
+.pkg
+build
 .coverage
-tests/log/coverage.xml
-tests/log/nosetests.xml

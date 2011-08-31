@@ -27,23 +27,26 @@
 # ===----------------------------------------------------------------------===
 
 .PHONY: all
-all: build/.stamp-h
+all: .pkg/.stamp-h
 
 .PHONY: check
-check: build/.stamp-h
-	./build/bin/python -Wall tests/manage.py test \
+check: .pkg/.stamp-h
+	mkdir -p build/report
+	.pkg/bin/python -Wall tests/manage.py test \
 	  --settings=tests.settings \
-	  --with-coverage \
-	  --cover-package=django_patterns \
 	  --with-xunit \
-	  --xunit-file="tests/log/nosetests.xml" \
+	  --xunit-file="build/report/xunit.xml" \
 	  --with-xcoverage \
-	  --xcoverage-file="tests/log/coverage.xml" \
+	  --xcoverage-file="build/report/coverage.xml" \
+	  --cover-package=django_patterns \
+	  --cover-erase \
+	  --cover-tests \
+	  --cover-inclusive \
 	  django_patterns
 
 .PHONY: shell
-shell: build/.stamp-h
-	./build/bin/python tests/manage.py shell_plus \
+shell: .pkg/.stamp-h
+	.pkg/bin/python tests/manage.py shell_plus \
 	  --print-sql \
 	  --ipython
 
@@ -53,10 +56,11 @@ mostlyclean:
 .PHONY: clean
 clean: mostlyclean
 	-rm -rf build
+	-rm -rf .pkg
 
 .PHONY: distclean
 distclean: clean
-	-rm -rf cache/pypi/*
+	-rm -rf .cache
 
 .PHONY: maintainer-clean
 maintainer-clean: distclean
@@ -69,20 +73,31 @@ dist:
 # ===--------------------------------------------------------------------===
 # ===--------------------------------------------------------------------===
 
-build/.stamp-h: conf/requirements.pip
+.cache/virtualenv/virtualenv-1.6.4.tar.gz:
+	mkdir -p .cache/virtualenv
+	sh -c "cd .cache/virtualenv && curl -O http://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.6.4.tar.gz"
+
+.pkg/.stamp-h: conf/requirements.*.pip .cache/virtualenv/virtualenv-1.6.4.tar.gz
 	${MAKE} clean
-	mkdir -p cache/pypi
-	./sandbox/build/bin/virtualenv \
+	tar \
+	  -C .cache/virtualenv --gzip \
+	  -xf .cache/virtualenv/virtualenv-1.6.4.tar.gz
+	mkdir -p .cache/pypi
+	python .cache/virtualenv/virtualenv-1.6.4/virtualenv.py \
 	  --clear \
 	  --no-site-packages \
 	  --distribute \
 	  --never-download \
 	  --prompt="(django-patterns) " \
-	  build
-	./build/bin/python build/bin/pip install \
-	  --download-cache="`pwd`"/cache/pypi \
-	  -r conf/requirements.pip
-	touch build/.stamp-h
+	  .pkg
+	rm -rf .cache/virtualenv/virtualenv-1.6.4
+	mkdir -p .cache/pypi
+	for reqfile in `ls conf/requirements.*.pip`; do \
+	  .pkg/bin/python .pkg/bin/pip install \
+	    --download-cache="`pwd`"/.cache/pypi \
+	    -r $$reqfile; \
+	done
+	touch .pkg/.stamp-h
 
 # ===--------------------------------------------------------------------===
 # End of File
