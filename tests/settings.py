@@ -243,7 +243,9 @@ argv = [
   "django_patterns",
 ]
 if argv[0] != os.path.abspath(sys.argv[0]) or argv[1] != sys.argv[1]:
-  apps = subprocess.check_output([sys.executable] + argv)
+  apps = subprocess.Popen(
+    [sys.executable] + argv,
+    stdout=subprocess.PIPE).communicate()[0]
   apps = list(set(apps.split('\n')))
   if '' in apps:
     apps.remove('')
