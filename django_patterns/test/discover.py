@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === tests/settings.py ---------------------------------------------------===
+# === django_patterns.test.discover ---------------------------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -30,21 +30,31 @@
 # ===----------------------------------------------------------------------===
 
 ##
-# Add the directory containing django_patterns to the Python path.
-import path_hack
-
-##
-# Import the default test settings provided by django_patterns.
-from django_patterns.test.project.settings import *
-
-##
-# Use django_patterns to detect embedded Django test applications, and add
-# them to our INSTALLED_APPS.
-from django_patterns.test.discover import discover_test_apps
-apps = discover_test_apps("django_patterns")
-if apps:
-  for app in apps:
-    INSTALLED_APPS += (app,)
+# In the django_patterns way of doing things, small testing applications
+# reside throughout the source tree, close to the code which they are testing.
+# In order for models defiend within these test applications to be created by
+# the test runner, these apps need to be present in the INSTALLED_APPS. We'll
+# take advantage of the new unittest2 discovery feature to find these testing
+# applications in the source tree and add them to the end of INSTALLED_APPS.
+#
+# FIXME: Provide better documentation for this code.
+def discover_test_apps(module):
+  import os
+  import sys
+  import subprocess
+  argv = [
+    os.path.abspath(os.path.join(os.getcwd(), sys.argv[0])),
+    "discover_unittest_modules",
+    module,
+  ]
+  if argv[0] != os.path.abspath(sys.argv[0]) or argv[1] != sys.argv[1]:
+    apps = subprocess.Popen(
+      [sys.executable] + argv,
+      stdout=subprocess.PIPE).communicate()[0]
+    apps = list(set(apps.split('\n')))
+    if '' in apps:
+      apps.remove('')
+    return apps
 
 # ===----------------------------------------------------------------------===
 # End of File

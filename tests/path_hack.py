@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === tests/settings.py ---------------------------------------------------===
+# === tests/path_hack.py --------------------------------------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -30,21 +30,20 @@
 # ===----------------------------------------------------------------------===
 
 ##
-# Add the directory containing django_patterns to the Python path.
-import path_hack
+# PROJECT_DIRECTORY is the directory on the file system which contains the
+# Django project this settings file is a part of. It is used so many times
+# that it deserves its own variable for efficiency and clarity.
+import os
+PROJECT_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 
 ##
-# Import the default test settings provided by django_patterns.
-from django_patterns.test.project.settings import *
-
-##
-# Use django_patterns to detect embedded Django test applications, and add
-# them to our INSTALLED_APPS.
-from django_patterns.test.discover import discover_test_apps
-apps = discover_test_apps("django_patterns")
-if apps:
-  for app in apps:
-    INSTALLED_APPS += (app,)
+# We need the module django_patterns to be accessible from the Python path. Do
+# not use this as an example of what to do in your own projects! Under normal
+# circumstances this is most properly done using virtualenv and pip to install
+# django_patterns into the site-packages directory of a project-specific
+# virtual environment.
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(PROJECT_DIRECTORY, '..')))
 
 # ===----------------------------------------------------------------------===
 # End of File

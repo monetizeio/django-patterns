@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === tests/settings.py ---------------------------------------------------===
+# === django_patterns.test ------------------------------------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -28,23 +28,6 @@
 # RIGHTS TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE,
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
-
-##
-# Add the directory containing django_patterns to the Python path.
-import path_hack
-
-##
-# Import the default test settings provided by django_patterns.
-from django_patterns.test.project.settings import *
-
-##
-# Use django_patterns to detect embedded Django test applications, and add
-# them to our INSTALLED_APPS.
-from django_patterns.test.discover import discover_test_apps
-apps = discover_test_apps("django_patterns")
-if apps:
-  for app in apps:
-    INSTALLED_APPS += (app,)
 
 # ===----------------------------------------------------------------------===
 # End of File

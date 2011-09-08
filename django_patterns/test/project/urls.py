@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === tests/settings.py ---------------------------------------------------===
+# === django_patterns.test.project.urls -----------------------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -29,22 +29,23 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-##
-# Add the directory containing django_patterns to the Python path.
-import path_hack
+from django.conf.urls.defaults import patterns, include, url
 
-##
-# Import the default test settings provided by django_patterns.
-from django_patterns.test.project.settings import *
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
 
-##
-# Use django_patterns to detect embedded Django test applications, and add
-# them to our INSTALLED_APPS.
-from django_patterns.test.discover import discover_test_apps
-apps = discover_test_apps("django_patterns")
-if apps:
-  for app in apps:
-    INSTALLED_APPS += (app,)
+urlpatterns = patterns('',
+  # Examples:
+  # url(r'^$', 'tests.views.home', name='home'),
+  # url(r'^tests/', include('tests.foo.urls')),
+
+  # Uncomment the admin/doc line below to enable admin documentation:
+  # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+  # Uncomment the next line to enable the admin:
+  # url(r'^admin/', include(admin.site.urls)),
+)
 
 # ===----------------------------------------------------------------------===
 # End of File

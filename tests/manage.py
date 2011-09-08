@@ -29,6 +29,14 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
+##
+# Add the directory containing django_patterns to the Python path.
+import path_hack
+
+##
+# What follows is the standard manage.py contents spit out by django-admin.py.
+##
+
 #!/usr/bin/env python
 from django.core.management import execute_manager
 import imp
