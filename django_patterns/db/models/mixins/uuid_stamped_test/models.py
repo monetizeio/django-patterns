@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.models.mixins.UUIDPrimaryKeyMixin_test.forms -----===
+# === django_patterns.db.models.mixins.uuid_stamped_test.models -----------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -29,18 +29,21 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-# Django-core, form handling
-import django.forms
+# Django-core, object relational mapper
+import django.db.models
 
-from models import UUIDPrimaryKeyModel
+# Django-patterns, object relational mapper mixins
+from django_patterns.db.models.mixins import UUIDStampedMixin
 
-class UUIDPrimaryKeyModelForm(django.forms.ModelForm):
+class UUIDStampedModel(UUIDStampedMixin):
   """
-  A standard ModelForm generated from UUIDPrimaryKeyModel, with all the
-  default configurations.
+  A simple model which inherits from UUIDStampedMixin only. It will have two
+  database-backed fields: its integer primary key and the auto-assigned and
+  randomly generated ‘uuid’.
   """
   class Meta(object):
-    model = UUIDPrimaryKeyModel
+    ordering     = ['uuid']
+    verbose_name = u"UUID stamped model"
 
 # ===----------------------------------------------------------------------===
 # End of File

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.models.mixins.UUIDStampedMixin_test.forms --------===
+# === django_patterns.db.models.mixins.uuid_primary_key_test.forms --------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -32,15 +32,15 @@
 # Django-core, form handling
 import django.forms
 
-from models import UUIDStampedModel
+from models import UUIDPrimaryKeyModel
 
-class UUIDStampedModelForm(django.forms.ModelForm):
+class UUIDPrimaryKeyModelForm(django.forms.ModelForm):
   """
-  A standard ModelForm generated from UUIDStampedModel, with all the default
-  configurations.
+  A standard ModelForm generated from UUIDPrimaryKeyModel, with all the
+  default configurations.
   """
   class Meta(object):
-    model = UUIDStampedModel
+    model = UUIDPrimaryKeyModel
 
 # ===----------------------------------------------------------------------===
 # End of File

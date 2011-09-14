@@ -29,8 +29,13 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-from UUIDPrimaryKeyMixin import UUIDPrimaryKeyMixin
-from UUIDStampedMixin    import UUIDStampedMixin
+from uuid_primary_key import UUIDPrimaryKeyMixin
+from uuid_stamped     import UUIDStampedMixin
+
+__all__ = [
+  "UUIDPrimaryKeyMixin",
+  "UUIDStampedMixin",
+]
 
 # ===----------------------------------------------------------------------===
 # End of File

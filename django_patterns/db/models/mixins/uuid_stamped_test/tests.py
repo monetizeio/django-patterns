@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.models.mixins.UUIDPrimaryKeyMixin_test.tests -----===
+# === django_patterns.db.models.mixins.uuid_stamped_test.tests ------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -35,9 +35,6 @@ import django.core.exceptions
 # Django-core, testing
 import django.test
 
-# Python standard library, unit-testing framework
-from django.utils import unittest
-
 # Django-extensions, additional model fields
 import django_extensions.db.fields
 
@@ -46,50 +43,63 @@ import django_extensions.db.fields
 # Must be a positive integer.
 INSTANCE_COUNT = 3
 
-from forms import UUIDPrimaryKeyModelForm
-from models import UUIDPrimaryKeyModel
+from forms import UUIDStampedModelForm
+from models import UUIDStampedModel
 
-class UUIDPrimaryKeyModelTests(django.test.TestCase):
+class UUIDStampedModelTests(django.test.TestCase):
   """
-  Tests models which use UUIDPrimaryKeyMixin to create an automatically
-  assigned and randomly generated UUID as the model instance's ‘id’ primary
-  key.
+  Tests models which use UUIDStampedMixin to create an automatically assigned
+  ‘uuid’ which in this mixin is in addition to the primary key.
   """
+  def __init__(self, *args, **kwargs):
+    super(UUIDStampedModelTests, self).__init__(*args, **kwargs)
+    self._model = UUIDStampedModel
+    self._form  = UUIDStampedModelForm
+
   def setUp(self):
-    super(UUIDPrimaryKeyModelTests, self).setUp()
+    super(UUIDStampedModelTests, self).setUp()
 
     # Multiple objects are generated in order to test the auto-generation and
     # uniqueness features of the UUID field.
     for i in range(0, INSTANCE_COUNT):
-      obj = UUIDPrimaryKeyModel()
+      obj = self._model()
       obj.save()
 
   def test_objects_created_successfully(self):
     """
-    Tests that UUIDPrimaryKeyModel objects can be successfully created.
+    Tests that UUIDStampedModel objects can be successfully created.
     """
-    self.assertEqual(UUIDPrimaryKeyModel.objects.filter().count(), INSTANCE_COUNT)
+    self.assertEqual(self._model.objects.filter().count(), INSTANCE_COUNT)
 
-  def test_primary_key_is_uuid(self):
+  def test_uuid_exists_as_field(self):
     """
-    Tests that the ‘id’ field of UUIDPrimaryKeyModel (and its alias, ‘pk’)
-    point to the UUID field.
+    Tests that the ‘uuid’ attribute exists on UUIDStampedModel instances.
     """
-    obj = UUIDPrimaryKeyModel.objects.filter()[0]
+    obj = self._model.objects.filter()[0]
+    try:
+      obj.uuid
+    except AttributeError:
+      self.assertTrue(False)
+
+  def test_uuid_field_is_uuid(self):
+    """
+    Tests that the ‘uuid’ attribute on UUIDStampedModel instances is in fact
+    a UUID field.
+    """
+    obj = self._model.objects.filter()[0]
     self.assertTrue(isinstance(
-      obj._meta._name_map['id'][0],
+      obj._meta._name_map['uuid'][0],
       django_extensions.db.fields.UUIDField,
     ))
-    self.assertEqual(obj.pk, obj.id)
 
   def test_uuid_is_unique(self):
     """
-    Tests that two UUIDPrimaryKeyModel objects cannot be created with the same
+    Tests that two UUIDStampedModel objects cannot be created with the same
     UUID value.
     """
-    obj = UUIDPrimaryKeyModel.objects.filter()[0]
-    new_obj = UUIDPrimaryKeyModel()
-    new_obj.id = obj.id
+    obj = self._model.objects.filter()[0]
+    new_obj = self._model()
+    new_obj.uuid = obj.uuid
     self.assertRaisesRegexp(
       django.core.exceptions.ValidationError,
       u'with this Universally unique identifier already exists',
@@ -98,37 +108,21 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
 
   def test_uuid_is_not_editable(self):
     """
-    Tests that ModelForms generated from UUIDPrimaryKeyModel do not contain
-    ‘id’ as an editable field.
+    Tests that ModelForms generated from UUIDStampedModel do not contain
+    ‘uuid’ as an editable field.
     """
-    objs = UUIDPrimaryKeyModel.objects.filter()
-    form = UUIDPrimaryKeyModelForm(objs[0])
-    with self.assertRaisesRegexp(KeyError, 'id'):
-      form.fields['id'].validate(objs[1].id, objs[0])
+    objs = self._model.objects.filter()
+    form = self._form(objs[0])
+    with self.assertRaisesRegexp(KeyError, 'uuid'):
+      form.fields['uuid'].validate(objs[1].uuid, objs[0])
 
   def test_uuid_unicode_representation(self):
     """
-    Test that the unicode representation of an UUIDPrimaryKeyModel object is
-    in standard form.
+    Test that the unicode representation of an UUIDStampedModel object is in
+    standard form.
     """
-    obj = UUIDPrimaryKeyModel.objects.filter()[0]
+    obj = self._model.objects.filter()[0]
     self.assertRegexpMatches(unicode(obj), r'[\w]{8}(-[\w]{4}){3}-[\w]{12}')
-
-from django_patterns.db.models.mixins.UUIDStampedMixin_test import tests
-class UUIDPrimaryKeyAsStampedModelTests(tests.UUIDStampedModelTests):
-  """
-  Tests that models which derive from UUIDPrimaryKeyMixin (whose UUID field is
-  ‘id’ with a @Property alias at ‘uuid’) work as a stand-in for code expecting
-  models derived from UUIDStampedMixin (whose UUID field is ‘uuid’).
-  """
-  def __init__(self, *args, **kwargs):
-    super(UUIDPrimaryKeyAsStampedModelTests, self).__init__(*args, **kwargs)
-    self._model = UUIDPrimaryKeyModel
-    self._form  = UUIDPrimaryKeyModelForm
-
-  @unittest.skip(u"UUID field does not exist as a Django field in UUIDPrimaryKeyModel.")
-  def test_uuid_field_is_uuid(self):
-    pass
 
 # ===----------------------------------------------------------------------===
 # End of File
