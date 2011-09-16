@@ -3,6 +3,7 @@
 
 # === django_patterns.db.models.mixins.positional_order_test.models -------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
+# as an unpublished work.
 #
 # RokuSigma Inc. (the “Company”) Confidential
 #

@@ -3,6 +3,7 @@
 
 # === django_patterns.db.models.mixins.uuid_primary_key_test --------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
+# as an unpublished work.
 #
 # RokuSigma Inc. (the “Company”) Confidential
 #
