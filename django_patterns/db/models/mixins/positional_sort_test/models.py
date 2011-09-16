@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.models.mixins ------------------------------------===
+# === django_patterns.db.models.mixins.positional_sort_test.models --------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -29,15 +29,15 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-from positional_sort  import PositionalSortMixin
-from uuid_primary_key import UUIDPrimaryKeyMixin
-from uuid_stamped     import UUIDStampedMixin
+# Django-core, object-relational mapper
+from django.db import models
 
-__all__ = [
-  "PositionalSortMixin",
-  "UUIDPrimaryKeyMixin",
-  "UUIDStampedMixin",
-]
+# Django-patterns, positional-sort mixin
+from django_patterns.db.models.mixins import PositionalSortMixin, \
+  UUIDStampedMixin
+
+class PositionalSortModel(PositionalSortMixin, UUIDStampedMixin):
+  pass
 
 # ===----------------------------------------------------------------------===
 # End of File
