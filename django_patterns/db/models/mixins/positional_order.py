@@ -179,7 +179,7 @@ class PositionalOrderMixin(models.Model):
     if self.position == position:
       return
     if not position in xrange(0, size):
-      raise IndexError, u"invalid position"
+      raise IndexError, _(u"invalid position")
 
     ##
     # Move the element to be inserted out of the way, so we have an empty cell
