@@ -121,21 +121,23 @@ class PositionalOrderMixin(models.Model):
     )
 
   def get_next(self):
-    """Return the element immediately following this one."""
+    """Return the element immediately following this one, or None at the end
+    of the list."""
     try:
       return self.get_object_at_offset(1)
     except self.DoesNotExist:
       return None
 
   def get_prev(self):
-    """Return the element immediately prior to this one."""
+    """Return the element immediately prior to this one, or None at the start
+    of the list."""
     try:
       return self.get_object_at_offset(-1)
     except self.DoesNotExist:
       return None
 
   def move_down(self):
-    """Move element one position down."""
+    """Move element down one position."""
     # Get the element after this one.
     one_after = self.get_next()
     if one_after is not None:
@@ -143,7 +145,7 @@ class PositionalOrderMixin(models.Model):
       self.swap(one_after)
 
   def move_up(self):
-    """Move element one position up."""
+    """Move element up one position."""
     # Get the element before this one.
     one_before = self.get_prev()
     if one_before is not None:
@@ -242,9 +244,10 @@ class PositionalOrderMixin(models.Model):
     the model automatically if there is no such field set. In this case, the
     element will be appended at the end of the list."""
     manager = self.__class__._default_manager
-    # is there a position saved? (explicitly testing None because 0 would be false as well)
+    # Is there a position saved? (Explicitly testing None because 0 would be
+    # False as well.)
     if self.position == None:
-      # no, it was empty. Find one
+      # No, it was empty. Find one:
       try:
         # Set self's position to be the last element:
         self.position = self.get_back().position + 1
@@ -252,7 +255,7 @@ class PositionalOrderMixin(models.Model):
         # IndexError happened: the query did not return any objects, so this
         # has to be the first
         self.position = 0
-    # save the now properly set-up model
+    # Save the now properly set-up model:
     return super(PositionalOrderMixin, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
