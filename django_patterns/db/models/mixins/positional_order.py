@@ -158,7 +158,7 @@ class PositionalOrderMixin(models.Model):
     """Move element to the end of the list."""
     # Get the object manager for the class:
     manager = self.__class__._default_manager
-    return self.insert_at(manager.order_by('-position')[0].position)
+    return self.insert_at(self.get_back().position)
 
   @transaction.commit_on_success
   def insert_at(self, position):
@@ -246,13 +246,11 @@ class PositionalOrderMixin(models.Model):
     if self.position == None:
       # no, it was empty. Find one
       try:
-        # get the last object
-        last = manager.all().order_by('-position')[0]
-        # the position of the last element
-        self.position = last.position + 1
-      except IndexError:
-        # IndexError happened: the query did not return any objects
-        # so this has to be the first
+        # Set self's position to be the last element:
+        self.position = self.get_back().position + 1
+      except self.DoesNotExist:
+        # IndexError happened: the query did not return any objects, so this
+        # has to be the first
         self.position = 0
 
     # save the now properly set-up model
