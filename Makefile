@@ -1,6 +1,6 @@
 # === makefile ------------------------------------------------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
-# 
+#
 # RokuSigma Inc. (the “Company”) Confidential
 #
 # NOTICE: All information contained herein is, and remains the property of the

@@ -112,7 +112,7 @@ class PositionalOrderModelTests(TestCase):
     that follow."""
     # Save the initial ordering.
     oids = _uuid_list(PositionalOrderModel.objects.all())
-    
+
     ##
     # Delete the middle element and compare:
     from math import floor
@@ -120,7 +120,7 @@ class PositionalOrderModelTests(TestCase):
     PositionalOrderModel.objects.get(position=idx).delete()
     oids = oids[:idx] + oids[idx+1:]
     self.assertEqual(oids, _uuid_list(PositionalOrderModel.objects.all()))
-    
+
     ##
     # Delete from the beginning of the list and compare:
     PositionalOrderModel.objects.get(position=0).delete()

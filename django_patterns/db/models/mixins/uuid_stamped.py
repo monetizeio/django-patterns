@@ -44,17 +44,17 @@ class UUIDStampedMixin(django.db.models.Model):
   by the Django-extensions library, creating a Django model mixin that can be
   trivially added to the inheritance hierarchy of any abstract or concrete
   Django model, in the following way:
-  
+
     class MyModel(UUIDStampedMixin):
       # That's it! UUIDStampedMixin inherits from django.db.models.Model, so
       # that does not need to be listed as a superclass, but you could also
       # (optionally) derive from other python classes as well.
       pass
-  
+
   A model defined in this way is given a new database-backed read-only field,
   ‘uuid’, which stores a version 4 (random) UUID automatically assigned at
   creation time for each object instance.
-  
+
   The UUID value is guaranteed to be unique among all instances of any (non-
   abstract) model that derives from UUIDStampedMixin. No guarantees are made
   that the UUID is in fact universally unique, but 2^61 instances are required
@@ -63,7 +63,7 @@ class UUIDStampedMixin(django.db.models.Model):
   possibility of collisions due to statistical chance can be ignored for all
   current applications, and nearly all conceivable applications, even far into
   the future.
-  
+
   NOTE: There is implicit trust in the system's random number generator, both
         that the generated digits are sufficiently random (usually a safe
         assumption, but do your homework and make sure) and that the random
