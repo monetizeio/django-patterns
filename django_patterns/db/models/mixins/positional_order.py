@@ -111,7 +111,7 @@ class PositionalOrderMixin(models.Model):
   @classmethod
   def get_back(cls):
     """Return the last element in the list."""
-    return cls._default_manager.reverse()[0:1].get()
+    return cls._default_manager.reverse()[:1].get()
 
   def get_object_at_offset(self, offset):
     """Get the object whose position is `offset` positions away from my
