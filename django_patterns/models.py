@@ -29,14 +29,12 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-"""
-Required module that must exist for django_patterns to be recognized as a
+"""Required module that must exist for django_patterns to be recognized as a
 Django app. For some reason every app must have a “app.models” module, even if
 it doesn't define any models.
 
 If you came to this module looking for Django model-related patterns, you may
-find what you are looking for in django_patterns.db.
-"""
+find what you are looking for in django_patterns.db."""
 
 from django.db import models
 

@@ -29,13 +29,11 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-"""
-Settings for the Django test project. This test project exists for the purpose
-of being able to run test cases which must be executed from within a Django
-environment, and to provide context for an interactive Python shell with the
-Django framework for development purposes. It is NOT an example of how to
-setup a project's settings to use the django_patterns application.
-"""
+"""Settings for the Django test project. This test project exists for the
+purpose of being able to run test cases which must be executed from within a
+Django environment, and to provide context for an interactive Python shell
+with the Django framework for development purposes. It is NOT an example of
+how to setup a project's settings to use the django_patterns application."""
 
 ##
 # During execution of the test suite, DEBUG and associated settings are
