@@ -138,21 +138,17 @@ class PositionalOrderMixin(models.Model):
     """Move element one position down."""
     # Get the element after this one.
     one_after = self.get_next()
-    if one_after is None:
-      # already the last
-      return
-    # Swap this element with the one that follows.
-    self.swap(one_after)
+    if one_after is not None:
+      # Swap this element with the one that follows.
+      self.swap(one_after)
 
   def move_up(self):
     """Move element one position up."""
     # Get the element before this one.
     one_before = self.get_prev()
-    if one_before is None:
-      # already the first
-      return
-    # Swap this element with the one prior.
-    self.swap(one_before)
+    if one_before is not None:
+      # Swap this element with the one prior.
+      self.swap(one_before)
 
   def move_to_front(self):
     """Move element to the front of the list."""
