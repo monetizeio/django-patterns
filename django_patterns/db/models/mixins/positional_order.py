@@ -31,7 +31,10 @@
 # ===----------------------------------------------------------------------===
 
 """This module provides PositionalOrderMixin, a mixin for Django models which
-provides automatic ordering based on an injected `position` integer field."""
+provides automatic ordering based on an injected `position` integer field.
+This pattern is based on the following Django snippet (heavily modified):
+
+<http://djangosnippets.org/snippets/259/>"""
 
 # Django.core, object-relational mapper
 from django.db import models, transaction
