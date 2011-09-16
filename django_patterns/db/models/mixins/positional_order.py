@@ -252,7 +252,6 @@ class PositionalOrderMixin(models.Model):
         # IndexError happened: the query did not return any objects, so this
         # has to be the first
         self.position = 0
-
     # save the now properly set-up model
     return super(PositionalOrderMixin, self).save(*args, **kwargs)
 
