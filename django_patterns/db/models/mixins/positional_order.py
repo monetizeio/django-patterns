@@ -51,24 +51,19 @@ class _InjectingModelBase(models.base.ModelBase):
   def __new__(cls, name, bases, attrs):
     """Metaclass constructor calling Django and then modifying the resulting
     class."""
-
-    ##
     # Ask Django nicely for the model class it has built.
     model = super(_InjectingModelBase, cls).__new__(cls, name, bases, attrs)
 
-    ##
-    # Try to add the position field.
+    # Try to add the position field:
     try:
-      # Create the IntegerField.
+      # Create the IntegerField:
       position_field = models.IntegerField(editable=False, unique=True)
-
-      ##
-      # Try injecting the position field into the class.
+      # Try injecting the position field into the class:
       try:
-        # Attempt to get the `position` field
+        # Attempt to get the `position` field:
         model._meta.get_field('position')
       except FieldDoesNotExist:
-        # It was not found - create it now
+        # It was not found--create it now:
         model.add_to_class('position', position_field)
 
       ##
@@ -83,8 +78,7 @@ class _InjectingModelBase(models.base.ModelBase):
       # called twice by Django; add_to_class will appear later.
       pass
 
-    ##
-    # We're done - output the class, it's ready for use.
+    # We're done--output the class, it's ready for use:
     return model
 
 class PositionalOrderMixin(models.Model):
