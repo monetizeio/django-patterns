@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.models.mixins.positional_sort --------------------===
+# === django_patterns.db.models.mixins.positional_order -------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 #
 # RokuSigma Inc. (the “Company”) Confidential
@@ -29,8 +29,8 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-"""This module provides PositionalSortMixin, a mixin for Django models which
-provides automatic positional sorting."""
+"""This module provides PositionalOrderMixin, a mixin for Django models which
+provides automatic ordering based on an injected `position` integer field."""
 
 # Django.core, object-relational mapper
 from django.db import models, transaction
@@ -40,7 +40,7 @@ from django.db.models.fields import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 class _InjectingModelBase(models.base.ModelBase):
-  """This helper metaclass is used by PositionalSortMixin. It injects a new
+  """This helper metaclass is used by PositionalOrderMixin. It injects a new
   IntegerField named ‘position’, which holds information about the position of
   the element in its list."""
 
@@ -83,7 +83,7 @@ class _InjectingModelBase(models.base.ModelBase):
     # We're done - output the class, it's ready for use.
     return model
 
-class PositionalSortMixin(models.Model):
+class PositionalOrderMixin(models.Model):
   """This mixin class implements a user defined order in the database. To
   apply this mixin you need to inherit from it before you inherit from
   `models.Model`. It adds an IntegerField called `position` to your model. Be
@@ -101,7 +101,7 @@ class PositionalSortMixin(models.Model):
   def __init__(self, *args, **kwargs):
     """Initialize the class and set up some positional magic."""
     # Initialize superclasses first.
-    super(PositionalSortMixin, self).__init__(self, *args, **kwargs)
+    super(PositionalOrderMixin, self).__init__(self, *args, **kwargs)
 
   @classmethod
   def get_front(cls):
@@ -260,7 +260,7 @@ class PositionalSortMixin(models.Model):
         self.position = 0
 
     # save the now properly set-up model
-    return super(PositionalSortMixin, self).save(*args, **kwargs)
+    return super(PositionalOrderMixin, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
     """Deletes the item from the list."""
@@ -269,7 +269,7 @@ class PositionalSortMixin(models.Model):
     objects_after = manager.filter(position__gt=self.position)
     # now we remove this model instance
     # so the `position` is free and other instances can fill this gap
-    super(PositionalSortMixin, self).delete(*args, **kwargs)
+    super(PositionalOrderMixin, self).delete(*args, **kwargs)
 
     # iterate through all objects which were found
     for element in objects_after:
@@ -282,7 +282,7 @@ class PositionalSortMixin(models.Model):
   ##################################
 
   def __init__(self, *args, **kwargs):
-    super(PositionalSortMixin, self).__init__(*args, **kwargs)
+    super(PositionalOrderMixin, self).__init__(*args, **kwargs)
 
     # Pythonic instance attributes go here:
     pass

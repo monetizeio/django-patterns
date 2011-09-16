@@ -29,12 +29,12 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-from positional_sort  import PositionalSortMixin
+from positional_order import PositionalOrderMixin
 from uuid_primary_key import UUIDPrimaryKeyMixin
 from uuid_stamped     import UUIDStampedMixin
 
 __all__ = [
-  "PositionalSortMixin",
+  "PositionalOrderMixin",
   "UUIDPrimaryKeyMixin",
   "UUIDStampedMixin",
 ]
