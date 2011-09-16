@@ -73,6 +73,18 @@ class _InjectingModelBase(models.base.ModelBase):
       if 'position' not in model._meta.ordering:
         model._meta.ordering = ['position'] + list(model._meta.ordering)
 
+      ##
+      # Inject the default manager if one was never provided.
+      try:
+        # Attempt to get the `objects` field:
+        model._meta.get_field('objects')
+      except FieldDoesNotExist:
+        # It was not found--create it now:
+        model.add_to_class(
+          'objects',
+          models.Manager()
+        )
+
     except AttributeError:
       # add_to_class was not yet added to the class. No problem, this is
       # called twice by Django; add_to_class will appear later.
@@ -80,6 +92,10 @@ class _InjectingModelBase(models.base.ModelBase):
 
     # We're done--output the class, it's ready for use:
     return model
+
+class _PositionalOrderManager(models.Manager):
+  def get_query_set(self):
+    return super(_PositionalOrderManager, self).get_query_set()
 
 class PositionalOrderMixin(models.Model):
   """This mixin class implements a user defined order in the database. To
@@ -96,6 +112,8 @@ class PositionalOrderMixin(models.Model):
   # Assign a metaclass which injects the positional field.
   __metaclass__ = _InjectingModelBase
 
+  _positional_order_manager = _PositionalOrderManager()
+
   def __init__(self, *args, **kwargs):
     """Initialize the class and set up some positional magic."""
     # Initialize superclasses first.
@@ -104,19 +122,20 @@ class PositionalOrderMixin(models.Model):
   @classmethod
   def get_front(cls):
     """Return the first element in the list."""
-    return cls._default_manager.get(position=0)
+    manager = cls._positional_order_manager
+    return manager.get(position=0)
 
   @classmethod
   def get_back(cls):
     """Return the last element in the list."""
-    return cls._default_manager.reverse()[:1].get()
+    manager = cls._positional_order_manager
+    return manager.reverse()[:1].get()
 
   def get_object_at_offset(self, offset):
     """Get the object whose position is `offset` positions away from my
     own."""
-    return self.__class__._default_manager.get(
-      position = self.position + offset
-    )
+    manager = self.__class__._positional_order_manager
+    return manager.get(position = self.position + offset)
 
   def get_next(self):
     """Return the element immediately following this one, or None at the end
@@ -157,14 +176,14 @@ class PositionalOrderMixin(models.Model):
   def move_to_back(self):
     """Move element to the end of the list."""
     # Get the object manager for the class:
-    manager = self.__class__._default_manager
+    manager = self.__class__._positional_order_manager
     return self.insert_at(self.get_back().position)
 
   @transaction.commit_on_success
   def insert_at(self, position):
     """Moves the object to a specified position."""
     # Get the object manager for the class:
-    manager = self.__class__._default_manager
+    manager = self.__class__._positional_order_manager
     # Get the size of the list:
     size = manager.all().count()
 
@@ -241,7 +260,7 @@ class PositionalOrderMixin(models.Model):
     """Saves the model to the database. It populates the `position` field of
     the model automatically if there is no such field set. In this case, the
     element will be appended at the end of the list."""
-    manager = self.__class__._default_manager
+    manager = self.__class__._positional_order_manager
     # Is there a position saved? (Explicitly testing None because 0 would be
     # False as well.)
     if self.position == None:
@@ -258,7 +277,7 @@ class PositionalOrderMixin(models.Model):
 
   def delete(self, *args, **kwargs):
     """Deletes the item from the list."""
-    manager = self.__class__._default_manager
+    manager = self.__class__._positional_order_manager
     # get all objects with a position greater than this objects position
     objects_after = manager.filter(position__gt=self.position)
     # now we remove this model instance
