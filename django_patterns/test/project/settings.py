@@ -163,6 +163,9 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+  # Run syncdb and migrate on first run if an in-memory database is used.
+  'django_patterns.middleware.SyncDBOnStartupMiddleware',
+
   # Standard Django middlewares:
   'django.middleware.common.CommonMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
