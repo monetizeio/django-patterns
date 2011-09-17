@@ -30,12 +30,10 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-"""
-Runs the test auto-discover functionality of unittest2 on the application(s)
+"""Runs the test auto-discover functionality of unittest2 on the applications
 specified, and prints to the console a list a modules which need to be added
 to INSTALLED_APPS when the test suite is run. If no applications are specified
-then the auto-discover is run on all applications in INSTALLED_APPS.
-"""
+then the auto-discover is run on all applications in INSTALLED_APPS."""
 
 import os
 import inspect

@@ -196,7 +196,8 @@ INSTALLED_APPS = (
   # development shell.
   'django_extensions',
 
-  # Our Django application, whose testing is the purpose of this project.
+  # Our Django application, which provides setup and utilities for assisting
+  # test discovery.
   'django_patterns',
 
   # Replaces the default Django test runner with nose's, which is much more
