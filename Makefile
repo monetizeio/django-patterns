@@ -47,7 +47,7 @@ check: .pkg/.stamp-h
 
 .PHONY: shell
 shell: .pkg/.stamp-h
-	.pkg/bin/python tests/manage.py shell_plus \
+	.pkg/bin/python tests/manage.py shell_plusplus \
 	  --print-sql \
 	  --ipython
 
