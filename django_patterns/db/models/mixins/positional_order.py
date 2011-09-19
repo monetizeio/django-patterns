@@ -66,14 +66,12 @@ class _InjectingModelBase(models.base.ModelBase):
         # It was not found--create it now:
         model.add_to_class('_position', position_field)
 
-      ##
       # Set _position as the first field to order by. Of course this gets
       # overridden when using database queries which request another ordering
       # method vis the order_by method.
       if '_position' not in model._meta.ordering:
         model._meta.ordering = ['_position'] + list(model._meta.ordering)
 
-      ##
       # Inject the default manager if one was never provided.
       try:
         # Attempt to get the `objects` field:
@@ -169,14 +167,12 @@ class PositionalOrderMixin(models.Model):
 
   def move_to_back(self):
     """Move element to the end of the list."""
-    # Get the object manager for the class:
     manager = self.__class__._positional_order_manager
     return self.insert_at(self.get_back()._position)
 
   @transaction.commit_on_success
   def insert_at(self, position):
     """Moves the object to a specified position."""
-    # Get the object manager for the class:
     manager = self.__class__._positional_order_manager
     # Get the size of the list:
     size = manager.all().count()
