@@ -163,18 +163,21 @@ class PositionalOrderModelTests(TestCase):
   def test_get_object_at_offset_invalid(self):
     """Tests that get_object_at_offset() with an invalid index raises a
     DoesNotExist exception."""
-    obj = PositionalOrderModel.objects.get(_position=0)
-    self.assertRaises(
-      PositionalOrderModel.DoesNotExist,
-      obj.get_object_at_offset,
-      (-1),
-    )
-    size = PositionalOrderModel.objects.all().count()
-    self.assertRaises(
-      PositionalOrderModel.DoesNotExist,
-      obj.get_object_at_offset,
-      size,
-    )
+    objs = PositionalOrderModel.objects.all()
+    size = objs.count()
+    for obj in objs:
+      # Index one too small:
+      self.assertRaises(
+        PositionalOrderModel.DoesNotExist,
+        obj.get_object_at_offset,
+        -obj._position - 1,
+      )
+      # Index one too large:
+      self.assertRaises(
+        PositionalOrderModel.DoesNotExist,
+        obj.get_object_at_offset,
+        size - obj._position,
+      )
 
   def test_get_next(self):
     """Tests that get_next() retrieves the element which follows."""
