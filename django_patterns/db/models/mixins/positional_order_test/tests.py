@@ -169,6 +169,12 @@ class PositionalOrderModelTests(TestCase):
       obj.get_object_at_offset,
       (-1),
     )
+    size = PositionalOrderModel.objects.all().count()
+    self.assertRaises(
+      PositionalOrderModel.DoesNotExist,
+      obj.get_object_at_offset,
+      size,
+    )
 
   def test_get_next(self):
     """Tests that get_next() retrieves the element which follows."""
