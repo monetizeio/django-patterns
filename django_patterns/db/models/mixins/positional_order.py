@@ -31,7 +31,7 @@
 # ===----------------------------------------------------------------------===
 
 """This module provides PositionalOrderMixin, a mixin for Django models which
-provides automatic ordering based on an injected `position` integer field.
+provides automatic ordering based on an injected `_position` integer field.
 This pattern is based on the following Django snippet (heavily modified):
 
 <http://djangosnippets.org/snippets/259/>"""
@@ -45,8 +45,8 @@ from django.utils.translation import ugettext_lazy as _
 
 class _InjectingModelBase(models.base.ModelBase):
   """This helper metaclass is used by PositionalOrderMixin. It injects a new
-  IntegerField named ‘position’, which holds information about the position of
-  the element in its list."""
+  IntegerField named ‘_position’, which holds information about the position
+  of the element in its list."""
 
   def __new__(cls, name, bases, attrs):
     """Metaclass constructor calling Django and then modifying the resulting
@@ -54,24 +54,24 @@ class _InjectingModelBase(models.base.ModelBase):
     # Ask Django nicely for the model class it has built.
     model = super(_InjectingModelBase, cls).__new__(cls, name, bases, attrs)
 
-    # Try to add the position field:
+    # Try to add the _position field:
     try:
       # Create the IntegerField:
       position_field = models.IntegerField(editable=False, unique=True)
-      # Try injecting the position field into the class:
+      # Try injecting the _position field into the class:
       try:
-        # Attempt to get the `position` field:
-        model._meta.get_field('position')
+        # Attempt to get the `_position` field:
+        model._meta.get_field('_position')
       except FieldDoesNotExist:
         # It was not found--create it now:
-        model.add_to_class('position', position_field)
+        model.add_to_class('_position', position_field)
 
       ##
-      # Set position as the first field to order. Of course this gets overridden
-      # when using database queries which request another ordering method
-      # (order_by).
-      if 'position' not in model._meta.ordering:
-        model._meta.ordering = ['position'] + list(model._meta.ordering)
+      # Set _position as the first field to order by. Of course this gets
+      # overridden when using database queries which request another ordering
+      # method vis the order_by method.
+      if '_position' not in model._meta.ordering:
+        model._meta.ordering = ['_position'] + list(model._meta.ordering)
 
       ##
       # Inject the default manager if one was never provided.
@@ -100,7 +100,7 @@ class _PositionalOrderManager(models.Manager):
 class PositionalOrderMixin(models.Model):
   """This mixin class implements a user defined order in the database. To
   apply this mixin you need to inherit from it before you inherit from
-  models.Model`. It adds an IntegerField called `position` to your model.
+  models.Model`. It adds an IntegerField called `_position` to your model.
   Additionally, this mixin changes the default ordering behavior to order by
   the position field."""
   # Assign a metaclass which injects the positional field.
@@ -117,7 +117,7 @@ class PositionalOrderMixin(models.Model):
   def get_front(cls):
     """Return the first element in the list."""
     manager = cls._positional_order_manager
-    return manager.get(position=0)
+    return manager.get(_position=0)
 
   @classmethod
   def get_back(cls):
@@ -129,7 +129,7 @@ class PositionalOrderMixin(models.Model):
     """Get the object whose position is `offset` positions away from my
     own."""
     manager = self.__class__._positional_order_manager
-    return manager.get(position = self.position + offset)
+    return manager.get(_position = self._position + offset)
 
   def get_next(self):
     """Return the element immediately following this one, or None at the end
@@ -171,7 +171,7 @@ class PositionalOrderMixin(models.Model):
     """Move element to the end of the list."""
     # Get the object manager for the class:
     manager = self.__class__._positional_order_manager
-    return self.insert_at(self.get_back().position)
+    return self.insert_at(self.get_back()._position)
 
   @transaction.commit_on_success
   def insert_at(self, position):
@@ -183,7 +183,7 @@ class PositionalOrderMixin(models.Model):
 
     ##
     # Early exits:
-    if self.position == position:
+    if self._position == position:
       return
     if not position in xrange(0, size):
       raise IndexError, _(u"invalid position")
@@ -191,8 +191,8 @@ class PositionalOrderMixin(models.Model):
     ##
     # Move the element to be inserted out of the way, so we have an empty cell
     # to work with.
-    old_position = self.position
-    self.position = size
+    old_position = self._position
+    self._position = size
     self.save()
 
     ##
@@ -201,52 +201,52 @@ class PositionalOrderMixin(models.Model):
     if position < old_position:
       idx = 1
       qs = manager.filter(
-        position__gte = position,
-        position__lt = old_position,
-      ).order_by('-position')
+        _position__gte = position,
+        _position__lt = old_position,
+      ).order_by('-_position')
     else:
       idx = -1
       qs = manager.filter(
-        position__gt = old_position,
-        position__lte = position,
-      ).order_by('position')
+        _position__gt = old_position,
+        _position__lte = position,
+      ).order_by('_position')
     for element in qs:
-      element.position += idx
+      element._position += idx
       element.save()
 
     ##
     # Assign the element to the now-empty cell.
-    self.position = position
+    self._position = position
     self.save()
 
   def insert_before(self, other):
     """Inserts an object in the database so that it will be ordered just
     before the `other` object - this has to be of the same type, of course."""
     # we only need to call another method and prepare the proper parameters
-    if self.position < other.position:
-      self.insert_at(other.position - 1)
+    if self._position < other._position:
+      self.insert_at(other._position - 1)
     else:
-      self.insert_at(other.position)
+      self.insert_at(other._position)
 
   def insert_after(self, other):
     """Inserts an object in the database so that it will be ordered just
     behind the `other` object - this has to be of the same type, of course."""
     # we only need to call another method and prepare the proper parameters
-    if self.position <= other.position:
-      self.insert_at(other.position)
+    if self._position <= other._position:
+      self.insert_at(other._position)
     else:
-      self.insert_at(other.position + 1)
+      self.insert_at(other._position + 1)
 
   @transaction.commit_on_success
   def swap(self, other):
     """Swaps the position with some other class instance"""
     # Save the current position:
-    current_position = self.position
+    current_position = self._position
     # Set own position to special, temporary position:
-    self.position = -1
+    self._position = -1
     self.save()
     # Exchange the two positions:
-    self.position, other.position = other.position, current_position
+    self._position, other._position = other._position, current_position
     for obj in (other, self):
       obj.save()
 
@@ -257,15 +257,15 @@ class PositionalOrderMixin(models.Model):
     manager = self.__class__._positional_order_manager
     # Is there a position saved? (Explicitly testing None because 0 would be
     # False as well.)
-    if self.position == None:
+    if self._position == None:
       # No, it was empty. Find one:
       try:
         # Set self's position to be the last element:
-        self.position = self.get_back().position + 1
+        self._position = self.get_back()._position + 1
       except self.DoesNotExist:
         # IndexError happened: the query did not return any objects, so this
         # has to be the first
-        self.position = 0
+        self._position = 0
     # Save the now properly set-up model:
     return super(PositionalOrderMixin, self).save(*args, **kwargs)
 
@@ -273,7 +273,7 @@ class PositionalOrderMixin(models.Model):
     """Deletes the item from the list."""
     manager = self.__class__._positional_order_manager
     # get all objects with a position greater than this objects position
-    objects_after = manager.filter(position__gt=self.position)
+    objects_after = manager.filter(_position__gt=self._position)
     # now we remove this model instance
     # so the `position` is free and other instances can fill this gap
     super(PositionalOrderMixin, self).delete(*args, **kwargs)
@@ -281,7 +281,7 @@ class PositionalOrderMixin(models.Model):
     # iterate through all objects which were found
     for element in objects_after:
       # decrease the position in the list (means: move forward)
-      element.position -= 1
+      element._position -= 1
       element.save()
 
   ##################################
