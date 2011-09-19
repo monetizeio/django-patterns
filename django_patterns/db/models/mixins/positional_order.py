@@ -167,7 +167,6 @@ class PositionalOrderMixin(models.Model):
 
   def move_to_back(self):
     """Move element to the end of the list."""
-    manager = self.__class__._positional_order_manager
     return self.insert_at(self.get_back()._position)
 
   @transaction.commit_on_success
