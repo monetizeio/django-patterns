@@ -67,7 +67,7 @@ class PositionalOrderModelTests(TestCase):
     """Tests that PositionalOrderModel objects can be successfully created."""
     self.assertEqual(
       PositionalOrderModel.objects.all().count(),
-      INSTANCE_COUNT
+      INSTANCE_COUNT,
     )
 
   def test_default_ordering(self):
