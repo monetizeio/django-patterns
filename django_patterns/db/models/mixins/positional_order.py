@@ -106,11 +106,6 @@ class PositionalOrderMixin(models.Model):
 
   _positional_order_manager = _PositionalOrderManager()
 
-  def __init__(self, *args, **kwargs):
-    """Initialize the class and set up some positional magic."""
-    # Initialize superclasses first.
-    super(PositionalOrderMixin, self).__init__(self, *args, **kwargs)
-
   @classmethod
   def get_front(cls):
     """Return the first element in the list."""
