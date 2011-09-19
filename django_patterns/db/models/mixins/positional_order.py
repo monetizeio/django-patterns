@@ -100,15 +100,9 @@ class _PositionalOrderManager(models.Manager):
 class PositionalOrderMixin(models.Model):
   """This mixin class implements a user defined order in the database. To
   apply this mixin you need to inherit from it before you inherit from
-  `models.Model`. It adds an IntegerField called `position` to your model. Be
-  careful, it overwrites any existing field that you might have defined.
+  models.Model`. It adds an IntegerField called `position` to your model.
   Additionally, this mixin changes the default ordering behavior to order by
-  the position field.
-
-  Take care: your model needs to have a manager which returns all objects set
-  as default manager, that is, the first defined manager. It does not need to
-  be named `objects`. Future versions of this mixin may inject its own,
-  private manager."""
+  the position field."""
   # Assign a metaclass which injects the positional field.
   __metaclass__ = _InjectingModelBase
 
