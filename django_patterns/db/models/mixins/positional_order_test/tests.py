@@ -52,6 +52,8 @@ def _position_list(queryset):
 class PositionalOrderModelTests(TestCase):
   """Tests models which use PositionalOrderMixin to create an automatically
   managed ordering based on an added unique integer `_position` field."""
+  _model = PositionalOrderModel
+
   def setUp(self):
     # Perform setup operations defined by any superclass.
     super(PositionalOrderModelTests, self).setUp()
@@ -60,13 +62,13 @@ class PositionalOrderModelTests(TestCase):
     # Multiple objects are generated in order to test the auto-generation and
     # uniqueness features of the UUID field.
     for i in xrange(0, INSTANCE_COUNT):
-      obj = PositionalOrderModel()
+      obj = self._model()
       obj.save()
 
   def test_objects_created_successfully(self):
-    """Tests that PositionalOrderModel objects can be successfully created."""
+    """Tests that instance objects can be successfully created."""
     self.assertEqual(
-      PositionalOrderModel.objects.all().count(),
+      self._model.objects.all().count(),
       INSTANCE_COUNT,
     )
 
@@ -74,12 +76,12 @@ class PositionalOrderModelTests(TestCase):
     """Tests that the default manager orders objects by `_position`."""
     # Note: The Django queryset method reverse() has no effect unless a
     #       default ordering exists or an ordering has been specified with
-    #       order_by(). We know that PositionalOrderModel does not specify a
+    #       order_by(). We know that our test model does not specify a
     #       default ordering and we don't use order_by(), so reverse() will
     #       have an effect only if PositionSortMixin injected a default
     #       ordering (as it is supposed to).
-    forward = _uuid_list(PositionalOrderModel.objects.all())
-    reverse = _uuid_list(PositionalOrderModel.objects.reverse())
+    forward = _uuid_list(self._model.objects.all())
+    reverse = _uuid_list(self._model.objects.reverse())
 
     ##
     # Undo the reverse ordering, assuming that the queryset reverse() had any
@@ -95,16 +97,16 @@ class PositionalOrderModelTests(TestCase):
   def test_position_is_index(self):
     """Tests that the `_position` field is an index into the default ordering
     of all objects."""
-    positions = _position_list(PositionalOrderModel.objects.all())
+    positions = _position_list(self._model.objects.all())
     for expected, actual in zip(xrange(0, INSTANCE_COUNT), positions):
       self.assertEqual(expected, actual)
 
   def test_new_objects_push_to_back(self):
     """Tests that new objects are placed at the end of the list."""
-    obj = PositionalOrderModel()
+    obj = self._model()
     obj.save()
     self.assertEqual(
-      PositionalOrderModel.objects.order_by('-_position')[0].uuid,
+      self._model.objects.order_by('-_position')[0].uuid,
       obj.uuid,
     )
 
@@ -112,40 +114,40 @@ class PositionalOrderModelTests(TestCase):
     """Tests that deleting an element updates the position of the elements
     that follow."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Delete the middle element and compare:
     from math import floor
     idx = int(floor(INSTANCE_COUNT/2))
-    PositionalOrderModel.objects.get(_position=idx).delete()
+    self._model.objects.get(_position=idx).delete()
     oids = oids[:idx] + oids[idx+1:]
-    self.assertEqual(oids, _uuid_list(PositionalOrderModel.objects.all()))
+    self.assertEqual(oids, _uuid_list(self._model.objects.all()))
 
     ##
     # Delete from the beginning of the list and compare:
-    PositionalOrderModel.objects.get(_position=0).delete()
+    self._model.objects.get(_position=0).delete()
     oids = oids[1:]
-    self.assertEqual(oids, _uuid_list(PositionalOrderModel.objects.all()))
+    self.assertEqual(oids, _uuid_list(self._model.objects.all()))
 
     ##
     # Delete from the end of the list and compare:
-    PositionalOrderModel.objects.order_by('-_position')[0].delete()
+    self._model.objects.order_by('-_position')[0].delete()
     oids = oids[0:len(oids)-1]
-    self.assertEqual(oids, _uuid_list(PositionalOrderModel.objects.all()))
+    self.assertEqual(oids, _uuid_list(self._model.objects.all()))
 
   def test_get_front(self):
     """Test that get_front() returns the element with `_position` == 0."""
     self.assertEqual(
-      PositionalOrderModel.get_front().uuid,
-      PositionalOrderModel.objects.get(_position=0).uuid,
+      self._model.get_front().uuid,
+      self._model.objects.get(_position=0).uuid,
     )
 
   def test_get_back(self):
     """Test that get_back() returns the last element in the list."""
     self.assertEqual(
-      PositionalOrderModel.get_back().uuid,
-      PositionalOrderModel.objects.reverse()[0].uuid,
+      self._model.get_back().uuid,
+      self._model.objects.reverse()[0].uuid,
     )
 
   def test_get_object_at_offset(self):
@@ -153,36 +155,36 @@ class PositionalOrderModelTests(TestCase):
     specified offset."""
     from math import floor
     idx = int(floor(INSTANCE_COUNT/2))
-    obj = PositionalOrderModel.objects.get(_position=idx)
+    obj = self._model.objects.get(_position=idx)
     for i in xrange(-idx, INSTANCE_COUNT-idx):
       self.assertEqual(
         obj.get_object_at_offset(i).uuid,
-        PositionalOrderModel.objects.get(_position=i+idx).uuid,
+        self._model.objects.get(_position=i+idx).uuid,
       )
 
   def test_get_object_at_offset_invalid(self):
     """Tests that get_object_at_offset() with an invalid index raises a
     DoesNotExist exception."""
-    objs = PositionalOrderModel.objects.all()
+    objs = self._model.objects.all()
     size = objs.count()
     for obj in objs:
       # Index one too small:
       self.assertRaises(
-        PositionalOrderModel.DoesNotExist,
+        self._model.DoesNotExist,
         obj.get_object_at_offset,
         -obj._position - 1,
       )
       # Index one too large:
       self.assertRaises(
-        PositionalOrderModel.DoesNotExist,
+        self._model.DoesNotExist,
         obj.get_object_at_offset,
         size - obj._position,
       )
 
   def test_get_next(self):
     """Tests that get_next() retrieves the element which follows."""
-    elem = PositionalOrderModel.objects.filter(_position__lt=INSTANCE_COUNT-1)
-    next = PositionalOrderModel.objects.all()[1:]
+    elem = self._model.objects.filter(_position__lt=INSTANCE_COUNT-1)
+    next = self._model.objects.all()[1:]
     self.assertEqual(
       map(lambda x: x.get_next().uuid, elem),
       map(lambda x: x.uuid, next),
@@ -190,13 +192,13 @@ class PositionalOrderModelTests(TestCase):
 
   def test_get_next_at_back(self):
     """Tests that get_next() on the last element of the list returns None."""
-    last = PositionalOrderModel.objects.reverse()[0]
+    last = self._model.objects.reverse()[0]
     self.assertEqual(last.get_next(), None)
 
   def test_get_prev(self):
     """Tests that get_prev() retrieves the prior element."""
-    elem = PositionalOrderModel.objects.filter(_position__gt=0)
-    prev = PositionalOrderModel.objects.all()[:INSTANCE_COUNT-1]
+    elem = self._model.objects.filter(_position__gt=0)
+    prev = self._model.objects.all()[:INSTANCE_COUNT-1]
     self.assertEqual(
       map(lambda x: x.get_prev().uuid, elem),
       map(lambda x: x.uuid, prev),
@@ -204,7 +206,7 @@ class PositionalOrderModelTests(TestCase):
 
   def test_get_prev_at_front(self):
     """Tests that get_next() on the first element of the list returns None."""
-    first = PositionalOrderModel.objects.all()[0]
+    first = self._model.objects.all()[0]
     self.assertEqual(first.get_prev(), None)
 
   def test_move_down(self):
@@ -212,31 +214,31 @@ class PositionalOrderModelTests(TestCase):
     list."""
     # Create a canonical list of UUIDs, which will be modified alongside the
     # database as a control process.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Test move_down() for each instance the operation would be valid on.
     for i in xrange(0, INSTANCE_COUNT-1):
-      PositionalOrderModel.objects.get(_position=i).move_down()
+      self._model.objects.get(_position=i).move_down()
       oids[i], oids[i+1] = oids[i+1], oids[i]
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all()),
+        _uuid_list(self._model.objects.all()),
       )
 
   def test_move_down_at_back(self):
     """Tests that move_down() on the last element in a list has no effect, but
     doesn't raise any exceptions either."""
     # Save the ordering pre-move_down().
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Attemp a move_down() on the last element.
-    PositionalOrderModel.objects.reverse()[0].move_down()
+    self._model.objects.reverse()[0].move_down()
 
     ##
     # Ensure that the list has not changed.
     self.assertEqual(oids,
-      _uuid_list(PositionalOrderModel.objects.all()),
+      _uuid_list(self._model.objects.all()),
     )
 
   def test_move_up(self):
@@ -244,67 +246,67 @@ class PositionalOrderModelTests(TestCase):
     the list."""
     # Create a canonical list of UUIDs, which will be modified alongside the
     # database as a control process.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Test move_up() for each instance the operation would be valid on.
     for i in xrange(1, INSTANCE_COUNT):
-      PositionalOrderModel.objects.get(_position=i).move_up()
+      self._model.objects.get(_position=i).move_up()
       oids[i-1], oids[i] = oids[i], oids[i-1]
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all()),
+        _uuid_list(self._model.objects.all()),
       )
 
   def test_move_up_at_front(self):
     """Tests that move_up() on the first element in a list has no effect, but
     doesn't raise any exceptions either."""
     # Save the ordering pre-move_up().
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Attemp a move_up() on the first element.
-    PositionalOrderModel.objects.all()[0].move_up()
+    self._model.objects.all()[0].move_up()
 
     ##
     # Ensure that the list has not changed.
     self.assertEqual(oids,
-      _uuid_list(PositionalOrderModel.objects.all()),
+      _uuid_list(self._model.objects.all()),
     )
 
   def test_move_to_front(self):
     """Tests that move_to_front() moves an element to the front of the
     list."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Test move_to_front() for each instance.
     for i in xrange(0, INSTANCE_COUNT):
-      PositionalOrderModel.objects.get(_position=i).move_to_front()
+      self._model.objects.get(_position=i).move_to_front()
       oids = [oids[i]] + oids[:i] + oids[i+1:]
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all()),
+        _uuid_list(self._model.objects.all()),
       )
 
   def test_move_to_back(self):
     """Tests that move_to_back() moves an element to the back of the list."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Test move_to_back() for each instance.
     for i in xrange(0, INSTANCE_COUNT):
-      PositionalOrderModel.objects.get(_position=i).move_to_back()
+      self._model.objects.get(_position=i).move_to_back()
       oids = oids[:i] + oids[i+1:] + [oids[i]]
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all()),
+        _uuid_list(self._model.objects.all()),
       )
 
   def test_insert_at(self):
     """Tests that insert_at() moves the element to the position specified,
     shifting all elements in-between up or down one as required."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Try all permunations of insertions.
@@ -316,32 +318,32 @@ class PositionalOrderModelTests(TestCase):
       else:
         oids = oids[:other] + [oids[elem]] + oids[other:elem] + oids[elem+1:]
       # Perform the database update:
-      PositionalOrderModel.objects.get(_position=elem).insert_at(other)
+      self._model.objects.get(_position=elem).insert_at(other)
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
   def test_insert_at_reflexive(self):
     """Tests that insert_at() applied to the position an element is already at
     has no effect."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     for element in xrange(0, INSTANCE_COUNT):
       # Perform the database update, with one query:
-      obj = PositionalOrderModel.objects.get(_position=element)
+      obj = self._model.objects.get(_position=element)
       obj.insert_at(element)
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
       # Perform the database update, with two queries:
-      PositionalOrderModel.objects.get(_position=element).insert_at(element)
+      self._model.objects.get(_position=element).insert_at(element)
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
   def test_insert_before(self):
@@ -349,7 +351,7 @@ class PositionalOrderModelTests(TestCase):
     by the element specified, shifting all elements in-between up or down one
     position as required."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Try all permunations of insertions.
@@ -361,35 +363,35 @@ class PositionalOrderModelTests(TestCase):
       else:
         oids = oids[:other] + [oids[elem]] + oids[other:elem] + oids[elem+1:]
       # Perform the database update:
-      PositionalOrderModel.objects.get(_position=elem).insert_before(
-        PositionalOrderModel.objects.get(_position=other),
+      self._model.objects.get(_position=elem).insert_before(
+        self._model.objects.get(_position=other),
       )
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
   def test_insert_before_reflexive(self):
     """Tests that insert_before() applied itself has no effect."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     for element in xrange(0, INSTANCE_COUNT):
       # Perform the database update, with one query:
-      obj = PositionalOrderModel.objects.get(_position=element)
+      obj = self._model.objects.get(_position=element)
       obj.insert_before(obj)
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
       # Perform the database update, with two queries:
-      PositionalOrderModel.objects.get(_position=element).insert_before(
-        PositionalOrderModel.objects.get(_position=element),
+      self._model.objects.get(_position=element).insert_before(
+        self._model.objects.get(_position=element),
       )
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
   def test_insert_after(self):
@@ -397,7 +399,7 @@ class PositionalOrderModelTests(TestCase):
     the element specified, shifting all elements in-between up or down one
     position as required."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # Try all permunations of insertions.
@@ -410,12 +412,12 @@ class PositionalOrderModelTests(TestCase):
       else:
         oids = oids[:other+1] + [oids[elem]] + oids[other+1:elem] + oids[elem+1:]
       # Perform the database update:
-      PositionalOrderModel.objects.get(_position=elem).insert_after(
-        PositionalOrderModel.objects.get(_position=other),
+      self._model.objects.get(_position=elem).insert_after(
+        self._model.objects.get(_position=other),
       )
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
   def test_insert_after_reflexive(self):
@@ -423,31 +425,31 @@ class PositionalOrderModelTests(TestCase):
     element to the end of the list, decrementing the position of all elements
     which previously followed the element."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     for element in xrange(0, INSTANCE_COUNT):
       # Perform the database update, with one query:
-      obj = PositionalOrderModel.objects.get(_position=element)
+      obj = self._model.objects.get(_position=element)
       obj.insert_after(obj)
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
       # Perform the database update, with two queries:
-      PositionalOrderModel.objects.get(_position=element).insert_after(
-        PositionalOrderModel.objects.get(_position=element),
+      self._model.objects.get(_position=element).insert_after(
+        self._model.objects.get(_position=element),
       )
       # Compare:
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
   def test_swap(self):
     """Tests that swap() exchanges the position of any two elements in the
     list."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # For each permutation of two indices, swap and compare with the expected
@@ -459,63 +461,64 @@ class PositionalOrderModelTests(TestCase):
 
       ##
       # Swap the elemental positions in the database.
-      PositionalOrderModel.objects.get(_position=i[0]).swap(
-        PositionalOrderModel.objects.get(_position=i[1])
+      self._model.objects.get(_position=i[0]).swap(
+        self._model.objects.get(_position=i[1])
       )
 
       ##
       # Compare the database with the expected result.
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
   def test_swap_self(self):
     """Tests that swap(self) has no effect, but executes without error."""
     # Save the initial ordering.
-    oids = _uuid_list(PositionalOrderModel.objects.all())
+    oids = _uuid_list(self._model.objects.all())
 
     ##
     # For each index, try swapping it with itself. The result should be the
     # same as the initial ordering.
     for i in xrange(0, INSTANCE_COUNT):
       # Swap the elemental positions in the database, using two queries.
-      PositionalOrderModel.objects.get(_position=i).swap(
-        PositionalOrderModel.objects.get(_position=i)
+      self._model.objects.get(_position=i).swap(
+        self._model.objects.get(_position=i)
       )
 
       ##
       # Make sure nothing changed.
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
       # Swap the elemental positions in the database, using one query.
-      obj = PositionalOrderModel.objects.get(_position=i)
+      obj = self._model.objects.get(_position=i)
       obj.swap(obj)
 
       ##
       # Make sure nothing changed.
       self.assertEqual(oids,
-        _uuid_list(PositionalOrderModel.objects.all())
+        _uuid_list(self._model.objects.all())
       )
 
 class EmptyPositionalOrderModelTests(TestCase):
   """Tests edge-case behavior when no elements have been created (yet)."""
+  _model = PositionalOrderModel
 
   def test_get_front_on_empty(self):
     """Tests that calling get_front() on an empty list raises a DoesNotExist
     exception."""
     self.assertRaises(
-      PositionalOrderModel.DoesNotExist,
-      PositionalOrderModel.get_front,
+      self._model.DoesNotExist,
+      self._model.get_front,
     )
 
   def test_get_back_on_empty(self):
     """Tests that calling get_back() on an empty list raises a DoesNotExist
     exception."""
     self.assertRaises(
-      PositionalOrderModel.DoesNotExist,
-      PositionalOrderModel.get_back,
+      self._model.DoesNotExist,
+      self._model.get_back,
     )
 
 # ===----------------------------------------------------------------------===
