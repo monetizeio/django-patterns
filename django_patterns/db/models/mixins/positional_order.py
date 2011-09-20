@@ -171,21 +171,18 @@ class PositionalOrderMixin(models.Model):
     # Get the size of the list:
     size = manager.all().count()
 
-    ##
     # Early exits:
     if self._position == position:
       return
     if not position in xrange(0, size):
       raise IndexError, _(u"invalid position")
 
-    ##
     # Move the element to be inserted out of the way, so we have an empty cell
     # to work with.
     old_position = self._position
     self._position = size
     self.save()
 
-    ##
     # Shift each item in between the two positions over by one, to compensate
     # for the move.
     if position < old_position:
@@ -204,7 +201,6 @@ class PositionalOrderMixin(models.Model):
       element._position += idx
       element.save()
 
-    ##
     # Assign the element to the now-empty cell.
     self._position = position
     self.save()

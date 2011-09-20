@@ -36,7 +36,6 @@ from django.test import TestCase
 # Python standard library, unit-testing framework
 from django.utils import unittest
 
-##
 # The number of instances which are created in the TestCase's setUp() method.
 # Must be a positive integer.
 INSTANCE_COUNT = 5
@@ -58,7 +57,6 @@ class PositionalOrderModelTests(TestCase):
     # Perform setup operations defined by any superclass.
     super(PositionalOrderModelTests, self).setUp()
 
-    ##
     # Multiple objects are generated in order to test the auto-generation and
     # uniqueness features of the UUID field.
     for i in xrange(0, INSTANCE_COUNT):
@@ -83,12 +81,10 @@ class PositionalOrderModelTests(TestCase):
     forward = _uuid_list(self._model.objects.all())
     reverse = _uuid_list(self._model.objects.reverse())
 
-    ##
     # Undo the reverse ordering, assuming that the queryset reverse() had any
     # effect at all.
     reverse.reverse()
 
-    ##
     # Compare the two lists. They should be the same if and only if the
     # queryset reverse() had an effect, which would only be the case if
     # PositionSortMixin injected a default ordering.
@@ -116,7 +112,6 @@ class PositionalOrderModelTests(TestCase):
     # Save the initial ordering.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Delete the middle element and compare:
     from math import floor
     idx = int(floor(INSTANCE_COUNT/2))
@@ -124,13 +119,11 @@ class PositionalOrderModelTests(TestCase):
     oids = oids[:idx] + oids[idx+1:]
     self.assertEqual(oids, _uuid_list(self._model.objects.all()))
 
-    ##
     # Delete from the beginning of the list and compare:
     self._model.objects.get(_position=0).delete()
     oids = oids[1:]
     self.assertEqual(oids, _uuid_list(self._model.objects.all()))
 
-    ##
     # Delete from the end of the list and compare:
     self._model.objects.order_by('-_position')[0].delete()
     oids = oids[0:len(oids)-1]
@@ -216,7 +209,6 @@ class PositionalOrderModelTests(TestCase):
     # database as a control process.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Test move_down() for each instance the operation would be valid on.
     for i in xrange(0, INSTANCE_COUNT-1):
       self._model.objects.get(_position=i).move_down()
@@ -231,11 +223,9 @@ class PositionalOrderModelTests(TestCase):
     # Save the ordering pre-move_down().
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Attemp a move_down() on the last element.
     self._model.objects.reverse()[0].move_down()
 
-    ##
     # Ensure that the list has not changed.
     self.assertEqual(oids,
       _uuid_list(self._model.objects.all()),
@@ -248,7 +238,6 @@ class PositionalOrderModelTests(TestCase):
     # database as a control process.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Test move_up() for each instance the operation would be valid on.
     for i in xrange(1, INSTANCE_COUNT):
       self._model.objects.get(_position=i).move_up()
@@ -263,11 +252,9 @@ class PositionalOrderModelTests(TestCase):
     # Save the ordering pre-move_up().
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Attemp a move_up() on the first element.
     self._model.objects.all()[0].move_up()
 
-    ##
     # Ensure that the list has not changed.
     self.assertEqual(oids,
       _uuid_list(self._model.objects.all()),
@@ -279,7 +266,6 @@ class PositionalOrderModelTests(TestCase):
     # Save the initial ordering.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Test move_to_front() for each instance.
     for i in xrange(0, INSTANCE_COUNT):
       self._model.objects.get(_position=i).move_to_front()
@@ -293,7 +279,6 @@ class PositionalOrderModelTests(TestCase):
     # Save the initial ordering.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Test move_to_back() for each instance.
     for i in xrange(0, INSTANCE_COUNT):
       self._model.objects.get(_position=i).move_to_back()
@@ -308,7 +293,6 @@ class PositionalOrderModelTests(TestCase):
     # Save the initial ordering.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Try all permunations of insertions.
     from itertools import permutations
     for elem, other in permutations(xrange(0, INSTANCE_COUNT), 2):
@@ -353,7 +337,6 @@ class PositionalOrderModelTests(TestCase):
     # Save the initial ordering.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Try all permunations of insertions.
     from itertools import permutations
     for elem, other in permutations(xrange(0, INSTANCE_COUNT), 2):
@@ -401,7 +384,6 @@ class PositionalOrderModelTests(TestCase):
     # Save the initial ordering.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # Try all permunations of insertions.
     from itertools import permutations
     for elem, other in permutations(xrange(0, INSTANCE_COUNT), 2):
@@ -451,7 +433,6 @@ class PositionalOrderModelTests(TestCase):
     # Save the initial ordering.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # For each permutation of two indices, swap and compare with the expected
     # result.
     from itertools import permutations
@@ -459,13 +440,11 @@ class PositionalOrderModelTests(TestCase):
       # Compute the expected result.
       oids[i[0]], oids[i[1]] = oids[i[1]], oids[i[0]]
 
-      ##
       # Swap the elemental positions in the database.
       self._model.objects.get(_position=i[0]).swap(
         self._model.objects.get(_position=i[1])
       )
 
-      ##
       # Compare the database with the expected result.
       self.assertEqual(oids,
         _uuid_list(self._model.objects.all())
@@ -476,7 +455,6 @@ class PositionalOrderModelTests(TestCase):
     # Save the initial ordering.
     oids = _uuid_list(self._model.objects.all())
 
-    ##
     # For each index, try swapping it with itself. The result should be the
     # same as the initial ordering.
     for i in xrange(0, INSTANCE_COUNT):
@@ -485,7 +463,6 @@ class PositionalOrderModelTests(TestCase):
         self._model.objects.get(_position=i)
       )
 
-      ##
       # Make sure nothing changed.
       self.assertEqual(oids,
         _uuid_list(self._model.objects.all())
@@ -495,7 +472,6 @@ class PositionalOrderModelTests(TestCase):
       obj = self._model.objects.get(_position=i)
       obj.swap(obj)
 
-      ##
       # Make sure nothing changed.
       self.assertEqual(oids,
         _uuid_list(self._model.objects.all())
