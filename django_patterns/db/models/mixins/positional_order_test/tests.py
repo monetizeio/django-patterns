@@ -53,13 +53,16 @@ def _position_list(queryset):
 def _each_position_list(model):
   try:
     order_with_respect_to = list(model._positional_order_with_respect_to)
-    if order_with_respect_to in ([], ['self'], ['s','e','l','f']):
-      raise ValueError
-  except (AttributeError, TypeError, ValueError):
+  except (AttributeError, TypeError):
+    return [{}]
+  if len(order_with_respect_to) < 1:
     return [{}]
   return map(
-    lambda x: dict(zip(order_with_respect_to, x)),
-    set(model.objects.values_list(*order_with_respect_to)),
+    lambda x: model.objects.get(_position=0, **x).get_positional_list_kwargs(),
+    map(
+      lambda x: dict(zip(order_with_respect_to, x)),
+      set(model.objects.values_list(*order_with_respect_to)),
+    ),
   ) or [{}]
 
 class PositionalOrderModelTests(TestCase):
@@ -139,15 +142,24 @@ class PositionalOrderModelTests(TestCase):
       oids = oids[:idx] + oids[idx+1:]
       self.assertEqual(oids, _uuid_list(self._model.objects.filter(**kwargs)))
 
-      # Delete from the beginning of the list and compare:
-      self._model.objects.filter(**kwargs).get(_position=0).delete()
-      oids = oids[1:]
-      self.assertEqual(oids, _uuid_list(self._model.objects.filter(**kwargs)))
+      if len(oids):
+        # Delete from the beginning of the list and compare:
+        self._model.objects.filter(**kwargs).get(_position=0).delete()
+        oids = oids[1:]
+        self.assertEqual(oids, _uuid_list(self._model.objects.filter(**kwargs)))
 
-      # Delete from the end of the list and compare:
-      self._model.objects.filter(**kwargs).order_by('-_position')[0].delete()
-      oids = oids[0:len(oids)-1]
-      self.assertEqual(oids, _uuid_list(self._model.objects.filter(**kwargs)))
+      if len(oids):
+        # Delete from the end of the list and compare:
+        self._model.objects.filter(**kwargs).order_by('-_position')[0].delete()
+        oids = oids[0:len(oids)-1]
+        self.assertEqual(oids, _uuid_list(self._model.objects.filter(**kwargs)))
+
+  def test_get_positional_list_kwargs(self):
+    """Test that get_positional_list_kwargs() returns a dictionary identifying
+    the positional list which includes the passed in instance."""
+    for kwargs in _each_position_list(self._model):
+      for element in self._model.objects.filter(**kwargs):
+        self.assertEqual(kwargs, element.get_positional_list_kwargs())
 
   def test_get_front(self):
     """Test that get_front() returns the element with `_position` == 0."""
@@ -322,6 +334,7 @@ class PositionalOrderModelTests(TestCase):
 
       # Test move_to_back() for each instance.
       for i in xrange(0, size):
+        print (kwargs, oids, i, self._model.objects.filter(**kwargs).values())
         self._model.objects.filter(**kwargs).get(_position=i).move_to_back()
         oids = oids[:i] + oids[i+1:] + [oids[i]]
         self.assertEqual(oids,

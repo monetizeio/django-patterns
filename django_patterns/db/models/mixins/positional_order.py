@@ -60,6 +60,46 @@ class _InjectingModelBase(models.base.ModelBase):
   def __new__(cls, name, bases, attrs):
     """Metaclass constructor calling Django and then modifying the resulting
     class."""
+
+    # Extract the `order_with_respect_to`, and do some preprocessing to get it
+    # in standard form.
+    try:
+      # Extract the `order_with_respect_to` configuration option from the Meta
+      # attribute. This will raise a `KeyError` if there is no Meta attribute,
+      # or an `AttributeError` if order_with_respect_to is not specified.
+      owrt = attrs['Meta'].order_with_respect_to
+      del attrs['Meta'].order_with_respect_to
+
+      # For compatibility with existing Django functionality, it is possible
+      # to specify `order_with_respect_to` as a string specifying a single
+      # attribute. Note that in Python 2.x `isinstance(obj,str)` is not the
+      # same as `isinstance(obj,unicode)`.
+      if isinstance(owrt, str) or isinstance(owrt, unicode):
+        owrt = (owrt,)
+      else:
+        owrt = tuple(owrt)
+
+      # Specifying `'self'` or `('self',)` is the same as `()`. We'll
+      # explicitly unify these cases.
+      if 'self' in owrt:
+        if len(owrt) is not 1:
+          raise ValueError, _(u"‘self’ cannot be combined with other fields in order_with_respect_to expression.")
+        else:
+          owrt = ()
+
+    # See the first two lines of the try block for the source of these
+    # exceptions:
+    except (KeyError, AttributeError):
+      owrt = ()
+
+    # Save the `order_with_respect_to` configuration parameter to our own
+    # attribute. While doing so, we check to see if a subclass has provided a
+    # different `order_with_respect_to`, in which case we use that.
+    try:
+      owrt = attrs['_positional_order_with_respect_to']
+    except KeyError:
+      attrs['_positional_order_with_respect_to'] = owrt
+
     # Ask Django nicely for the model class it has built.
     model = super(_InjectingModelBase, cls).__new__(cls, name, bases, attrs)
 
@@ -104,6 +144,21 @@ class _PositionalOrderManager(models.Manager):
   def get_query_set(self):
     return super(_PositionalOrderManager, self).get_query_set()
 
+def _match_args(params, *args, **kwargs):
+  args = dict(zip(params, args))
+
+  # Check for duplicates
+  argkeys = args.keys()
+  kwakeys = kwargs.keys()
+  for key in argkeys:
+    if key in kwakeys:
+      if args['key'] is not kwargs['key']:
+        raise ValueError, _(u"parameter %s given different values in args and kwargs")
+
+  # Combine dictionaries and return:
+  kwargs.update(args)
+  return kwargs
+
 class PositionalOrderMixin(models.Model):
   """This mixin class implements a user defined order in the database. To
   apply this mixin you need to inherit from it, as follows:
@@ -124,23 +179,46 @@ class PositionalOrderMixin(models.Model):
 
   _positional_order_manager = _PositionalOrderManager()
 
-  @classmethod
-  def get_front(cls):
-    """Return the first element in the list."""
-    manager = cls._positional_order_manager
-    return manager.get(_position=0)
+  def get_positional_list_kwargs(self):
+    """Returns a dictionary specifying the instance values for the fields this
+    model has an `order_with_respect_to` constraint. This dictionary is
+    suitable for use as kwargs to a queryset filter, for which the results are
+    guaranteed to have unique `_position` fields."""
+    def getattr_or_None(obj, attr):
+      try:
+        return getattr(obj, attr)
+      except ValueError:
+        return None
+    return dict(zip(
+      self._positional_order_with_respect_to,
+      map(
+        lambda x: getattr_or_None(self, x),
+        self._positional_order_with_respect_to,
+      ),
+    ))
 
   @classmethod
-  def get_back(cls):
-    """Return the last element in the list."""
+  def get_front(cls, *args, **kwargs):
+    """Return the first element in the list."""
+    # Combine args and kwargs based on `order_with_respect_to`:
+    kwargs = _match_args(cls._positional_order_with_respect_to, *args, **kwargs)
     manager = cls._positional_order_manager
-    return manager.reverse()[:1].get()
+    return manager.get(_position=0, **kwargs)
+
+  @classmethod
+  def get_back(cls, *args, **kwargs):
+    """Return the last element in the list."""
+    # Combine args and kwargs based on `order_with_respect_to`:
+    kwargs = _match_args(cls._positional_order_with_respect_to, *args, **kwargs)
+    manager = cls._positional_order_manager
+    return manager.filter(**kwargs).reverse()[:1].get()
 
   def get_object_at_offset(self, offset):
     """Get the object whose position is `offset` positions away from my
     own."""
+    kwargs = self.get_positional_list_kwargs()
     manager = self.__class__._positional_order_manager
-    return manager.get(_position = self._position + offset)
+    return manager.get(_position = self._position + offset, **kwargs)
 
   def get_next(self):
     """Return the element immediately following this one, or None at the end
@@ -180,14 +258,16 @@ class PositionalOrderMixin(models.Model):
 
   def move_to_back(self):
     """Move element to the end of the list."""
-    return self.insert_at(self.get_back()._position)
+    kwargs = self.get_positional_list_kwargs()
+    return self.insert_at(self.get_back(**kwargs)._position)
 
   @transaction.commit_on_success
   def insert_at(self, position):
     """Moves the object to a specified position."""
+    kwargs = self.get_positional_list_kwargs()
     manager = self.__class__._positional_order_manager
     # Get the size of the list:
-    size = manager.all().count()
+    size = manager.filter(**kwargs).count()
 
     # Early exits:
     if self._position == position:
@@ -205,13 +285,13 @@ class PositionalOrderMixin(models.Model):
     # for the move.
     if position < old_position:
       idx = 1
-      qs = manager.filter(
+      qs = manager.filter(**kwargs).filter(
         _position__gte = position,
         _position__lt = old_position,
       ).order_by('-_position')
     else:
       idx = -1
-      qs = manager.filter(
+      qs = manager.filter(**kwargs).filter(
         _position__gt = old_position,
         _position__lte = position,
       ).order_by('_position')
@@ -265,7 +345,8 @@ class PositionalOrderMixin(models.Model):
       # No, it was empty. Find one:
       try:
         # Set self's position to be the last element:
-        self._position = self.get_back()._position + 1
+        last = self.get_back(**self.get_positional_list_kwargs())
+        self._position = last._position + 1
       except self.DoesNotExist:
         # IndexError happened: the query did not return any objects, so this
         # has to be the first
@@ -277,7 +358,8 @@ class PositionalOrderMixin(models.Model):
     """Deletes the item from the list."""
     manager = self.__class__._positional_order_manager
     # get all objects with a position greater than this objects position
-    objects_after = manager.filter(_position__gt=self._position)
+    objects_after = manager.filter(_position__gt=self._position,
+      **self.get_positional_list_kwargs())
     # now we remove this model instance
     # so the `position` is free and other instances can fill this gap
     super(PositionalOrderMixin, self).delete(*args, **kwargs)
