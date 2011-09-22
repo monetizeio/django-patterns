@@ -32,7 +32,9 @@
 
 """This module provides PositionalOrderMixin, a mixin for Django models which
 provides automatic ordering based on an injected `_position` integer field.
-This pattern is based on the following Django snippet (heavily modified):
+This pattern provides a superset of the functionality of Django's built-in
+`order_with_respect_to` Meta option, and is based on the following Django
+snippet (heavily modified):
 
 <http://djangosnippets.org/snippets/259/>"""
 
@@ -44,9 +46,16 @@ from django.db.models.fields import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 class _InjectingModelBase(models.base.ModelBase):
-  """This helper metaclass is used by PositionalOrderMixin. It injects a new
-  IntegerField named ‘_position’, which holds information about the position
-  of the element in its list."""
+  """This helper metaclass is used by PositionalOrderMixin. It inspects the
+  Meta option `order_with_respect_to` and in most cases injects into the model
+  a new IntegerField named `_position`, which holds information about the
+  position of the element relative to other elements with the same ordering
+  key.
+
+  If `order_with_respect_to` specifies a single ForeignKey field (or a
+  OneToOneField), the methods `get_RELATED_order()` and `set_RELATED_order()`
+  are added to the related model (with the same semantics as the default
+  Django behavior)."""
 
   def __new__(cls, name, bases, attrs):
     """Metaclass constructor calling Django and then modifying the resulting
@@ -97,11 +106,20 @@ class _PositionalOrderManager(models.Manager):
 
 class PositionalOrderMixin(models.Model):
   """This mixin class implements a user defined order in the database. To
-  apply this mixin you need to inherit from it before you inherit from
-  models.Model`. It adds an IntegerField called `_position` to your model.
-  Additionally, this mixin changes the default ordering behavior to order by
-  the position field."""
-  # Assign a metaclass which injects the positional field.
+  apply this mixin you need to inherit from it, as follows:
+
+    from django_patterns.db.models.mixins import PositionalOrderMixin
+    class MyOrderedModel(PositionalOrderMixin):
+      # That's it! Because `PositionalOrderMixin` inherits from
+      # `django.db.models.Model`, you don't need to explicitly include it as a
+      # superclass.
+      pass
+
+  PositionalOrderMixin adds an IntegerField called `_position` to your model.
+  Additionally, this mixin adds its own manager, and modifies the default
+  manager (creating one if necessary) to have the default ordering behavior of
+  ordering by the _position field."""
+  # Assign a metaclass which injects the `_position` field.
   __metaclass__ = _InjectingModelBase
 
   _positional_order_manager = _PositionalOrderManager()
