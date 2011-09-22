@@ -242,7 +242,7 @@ class PositionalOrderModelTests(TestCase):
       )
 
   def test_get_prev_at_front(self):
-    """Tests that get_next() on the first element of the list returns None."""
+    """Tests that get_prev() on the first element of the list returns None."""
     for kwargs in _each_position_list(self._model):
       first = self._model.objects.filter(**kwargs)[0]
       self.assertEqual(first.get_prev(), None)
