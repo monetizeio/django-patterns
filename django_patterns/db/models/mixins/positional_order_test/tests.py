@@ -336,7 +336,6 @@ class PositionalOrderModelTests(TestCase):
 
       # Test move_to_back() for each instance.
       for i in xrange(0, size):
-        print (kwargs, oids, i, self._model.objects.filter(**kwargs).values())
         self._model.objects.filter(**kwargs).get(_position=i).move_to_back()
         oids = oids[:i] + oids[i+1:] + [oids[i]]
         self.assertEqual(oids,
