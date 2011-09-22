@@ -42,9 +42,11 @@ INSTANCE_COUNT = 4
 
 from models import *
 
+# Returns the result of the queryset in the form of a list of UUID values:
 def _uuid_list(queryset):
   return map(lambda x: x.uuid, queryset)
 
+# Returns the result of the queryset in the form of a list of position values:
 def _position_list(queryset):
   return map(lambda x: x._position, queryset)
 
