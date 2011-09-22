@@ -33,6 +33,9 @@
 # Django-core, testing
 from django.test import TestCase
 
+# Django.core, translation
+from django.utils.translation import ugettext_lazy as _
+
 # Python standard library, unit-testing framework
 from django.utils import unittest
 
@@ -595,6 +598,165 @@ class SimplePositionalOrderWithSelfTests(PositionalOrderModelTests):
   _model = SimplePositionalOrderWithSelfModel
 class EmptySimplePositionalOrderWithSelfTests(EmptyPositionalOrderModelTests):
   _model = SimplePositionalOrderWithSelfModel
+
+class OneToOnePositionalOrderTests(PositionalOrderModelTests):
+  _model = OneToOnePositionalOrderModel
+  def setUp(self):
+    # Perform setup operations defined by any superclass, skipping
+    # PositionalOrderModelTests's setUp() method.
+    super(PositionalOrderModelTests, self).setUp()
+    for i in xrange(0, INSTANCE_COUNT):
+      rel = RelatedKeyModel()
+      rel.save()
+      obj = self._model()
+      obj.other = rel
+      obj.save()
+  @unittest.skip(_(u"additional objects cannot be added to a positional list ordered_with_respect_to a OneToOneKey."))
+  def test_new_objects_push_to_back(self):
+    pass
+  def test_objects_created_successfully(self):
+    """Tests that instance objects can be successfully created."""
+    kwargs_list = _each_position_list(self._model)
+    # There should be INSTANCE_COUNT lists of one element each:
+    self.assertEqual(len(kwargs_list), INSTANCE_COUNT)
+    for kwargs in kwargs_list:
+      self.assertEqual(self._model.objects.filter(**kwargs).count(), 1)
+class EmptyOneToOnePositionalOrderTests(EmptyPositionalOrderModelTests):
+  _model = OneToOnePositionalOrderModel
+
+class ForeignKeyPositionalOrderTests(PositionalOrderModelTests):
+  _model = ForeignKeyPositionalOrderModel
+  def setUp(self):
+    # Perform setup operations defined by any superclass, skipping
+    # PositionalOrderModelTests's setUp() method.
+    super(PositionalOrderModelTests, self).setUp()
+    for i in xrange(0, INSTANCE_COUNT):
+      rel = RelatedKeyModel()
+      rel.save()
+      for j in xrange(0, INSTANCE_COUNT):
+        obj = self._model()
+        obj.other = rel
+        obj.save()
+class EmptyForeignKeyPositionalOrderTests(EmptyPositionalOrderModelTests):
+  _model = ForeignKeyPositionalOrderModel
+
+class SelfReferentialPositionalOrderTests(PositionalOrderModelTests):
+  _model = SelfReferentialPositionalOrderModel
+  def setUp(self):
+    # Perform setup operations defined by any superclass, skipping
+    # PositionalOrderModelTests's setUp() method.
+    super(PositionalOrderModelTests, self).setUp()
+    objs = []
+    from random import randrange
+    for i in xrange(0, INSTANCE_COUNT**2):
+      obj = self._model()
+      if i and randrange(0,3):
+        obj.parent = objs[randrange(0,len(objs))]
+      else:
+        obj.parent = None
+      obj.save()
+      objs.append(obj)
+  def test_objects_created_successfully(self):
+    """Tests that instance objects can be successfully created."""
+    # Since the number of lists is random, we'll simply check that
+    # INSTANCE_COUNT**2 objects have been created.
+    self.assertEqual(self._model.objects.all().count(), INSTANCE_COUNT**2)
+  def test_delete_updates_position(self):
+    """Tests that deleting an element updates the position of the elements
+    that follow."""
+    # Deletes cascade, so we'll just check the list formed by parent=None:
+    kwargs = {'parent':None}
+    # Save the initial ordering.
+    oids = _uuid_list(self._model.objects.filter(**kwargs))
+    size = len(oids)
+    # Delete the middle element and compare:
+    from math import floor
+    idx = int(floor(size/2))
+    self._model.objects.filter(**kwargs).get(_position=idx).delete()
+    oids = oids[:idx] + oids[idx+1:]
+    self.assertEqual(oids, _uuid_list(self._model.objects.filter(**kwargs)))
+    if len(oids):
+      # Delete from the beginning of the list and compare:
+      self._model.objects.filter(**kwargs).get(_position=0).delete()
+      oids = oids[1:]
+      self.assertEqual(oids, _uuid_list(self._model.objects.filter(**kwargs)))
+    if len(oids):
+      # Delete from the end of the list and compare:
+      self._model.objects.filter(**kwargs).order_by('-_position')[0].delete()
+      oids = oids[0:len(oids)-1]
+      self.assertEqual(oids, _uuid_list(self._model.objects.filter(**kwargs)))
+class EmptySelfReferentialPositionalOrderTests(EmptyPositionalOrderModelTests):
+  _model = SelfReferentialPositionalOrderModel
+
+class DjangoCompatiblePositionalOrderTests(ForeignKeyPositionalOrderTests):
+  _model = DjangoCompatiblePositionalOrderModel
+class EmptyDjangoCompatiblePositionalOrderTests(EmptyForeignKeyPositionalOrderTests):
+  _model = DjangoCompatiblePositionalOrderModel
+
+"""class ManyToManyPositionalOrderTests(PositionalOrderModelTests):
+  _model = ManyToManyPositionalOrderModel
+  def setUp(self):
+    from itertools import combinations
+    from random import choice
+    # Perform setup operations defined by any superclass, skipping
+    # PositionalOrderModelTests's setUp() method.
+    super(PositionalOrderModelTests, self).setUp()
+    for i in xrange(0, INSTANCE_COUNT):
+      rel = RelatedKeyModel()
+      rel.save()
+    options = tuple(combinations(RelatedKeyModel.objects.all(), 2))
+    for i in xrange(0, INSTANCE_COUNT**2):
+      obj = self._model()
+      obj.save()
+      obj.other = choice(options)
+      obj.save()
+  def _each_position_list(self):
+    from itertools import combinations
+    return map(
+      lambda x: {other}
+      tuple(combinations(RelatedKeyModel.objects.all(), 2))
+class EmptyManyToManyPositionalOrderTests(EmptyPositionalOrderModelTests):
+  _model = ManyToManyPositionalOrderModel
+class ReverseManyToManyPositionalOrderTests(ManyToManyPositionalOrderTests):
+  _model = ReverseManyToManyPositionalOrderModel
+class EmptyReverseManyToManyPositionalOrderTests(EmptyManyToManyPositionalOrderTests):
+  _model = ReverseManyToManyPositionalOrderModel"""
+
+class IntegerPositionalOrderTests(PositionalOrderModelTests):
+  _model = IntegerPositionalOrderModel
+  def setUp(self):
+    from itertools import product
+    # Perform setup operations defined by any superclass, skipping
+    # PositionalOrderModelTests's setUp() method.
+    super(PositionalOrderModelTests, self).setUp()
+    for i, j in product(xrange(INSTANCE_COUNT), repeat=2):
+      obj = self._model()
+      obj.playlist = j
+      obj.save()
+class EmptyIntegerPositionalOrderTests(EmptyPositionalOrderModelTests):
+  _model = IntegerPositionalOrderModel
+
+"""class PollChoicePositionalOrderTests(PositionalOrderModelTests):
+  _model = PollChoicePositionalOrderModel
+class EmptyPollChoicePositionalOrderTests(EmptyPositionalOrderModelTests):
+  _model = PollChoicePositionalOrderModel
+class BookPositionalOrderByAuthorTests(PositionalOrderModelTests):
+  _model = BookPositionalOrderByAuthorModel
+class EmptyBookPositionalOrderByAuthorTests(EmptyPositionalOrderModelTests):
+  _model = BookPositionalOrderByAuthorModel
+class BookPositionalOrderByWorkTests(BookPositionalOrderByAuthorTests):
+  _model = BookPositionalOrderByWorkModel
+class EmptyBookPositionalOrderByWorkTests(EmptyBookPositionalOrderByAuthorTests):
+  _model = BookPositionalOrderByWorkModel
+class ReversedBookPositionalOrderByWorkTests(BookPositionalOrderByWorkTests):
+  _model = ReversedBookPositionalOrderByWorkModel
+class EmptyReversedBookPositionalOrderByWorkTests(EmptyBookPositionalOrderByWorkTests):
+  _model = ReversedBookPositionalOrderByWorkModel
+class ReversedBookPositionalOrderByAuthorTests(BookPositionalOrderByAuthorTests):
+  _model = ReversedBookPositionalOrderByAuthorModel
+class EmptyReversedBookPositionalOrderByAuthorTests(BookPositionalOrderByAuthorTests):
+  _model = ReversedBookPositionalOrderByAuthorModel"""
+
 # ===----------------------------------------------------------------------===
 # End of File
 # ===----------------------------------------------------------------------===
