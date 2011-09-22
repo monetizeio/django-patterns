@@ -72,14 +72,14 @@ class PositionalOrderModelTests(TestCase):
   managed ordering based on an added unique integer `_position` field."""
   _model = SimplePositionalOrderModel
 
-  def setUp(self):
+  def setUp(self, **kwargs):
     # Perform setup operations defined by any superclass.
     super(PositionalOrderModelTests, self).setUp()
 
     # Multiple objects are generated in order to test the auto-generation and
     # uniqueness features of the UUID field.
     for i in xrange(0, INSTANCE_COUNT):
-      obj = self._model()
+      obj = self._model(**kwargs)
       obj.save()
 
   def test_objects_created_successfully(self):
