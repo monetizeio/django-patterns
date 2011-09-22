@@ -350,6 +350,10 @@ class PositionalOrderModelTests(TestCase):
       oids = _uuid_list(self._model.objects.filter(**kwargs))
       size = len(oids)
 
+      # Test is meaningless for lists less than 2 elements in length.
+      if size < 2:
+        continue
+
       # Try all permunations of insertions.
       from itertools import permutations
       for elem, other in permutations(xrange(0, size), 2):
@@ -397,6 +401,10 @@ class PositionalOrderModelTests(TestCase):
       # Save the initial ordering.
       oids = _uuid_list(self._model.objects.filter(**kwargs))
       size = len(oids)
+
+      # Test is meaningless for lists less than 2 elements in length.
+      if size < 2:
+        continue
 
       # Try all permunations of insertions.
       from itertools import permutations
@@ -448,6 +456,10 @@ class PositionalOrderModelTests(TestCase):
       # Save the initial ordering.
       oids = _uuid_list(self._model.objects.filter(**kwargs))
       size = len(oids)
+
+      # Test is meaningless for lists less than 2 elements in length.
+      if size < 2:
+        continue
 
       # Try all permunations of insertions.
       from itertools import permutations
@@ -501,6 +513,10 @@ class PositionalOrderModelTests(TestCase):
       # Save the initial ordering.
       oids = _uuid_list(self._model.objects.filter(**kwargs))
       size = len(oids)
+
+      # Test is meaningless for lists less than 2 elements in length.
+      if size < 2:
+        continue
 
       # For each permutation of two indices, swap and compare with the
       # expected result.
