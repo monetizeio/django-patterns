@@ -338,7 +338,6 @@ class PositionalOrderMixin(models.Model):
     """Saves the model to the database. It populates the `position` field of
     the model automatically if there is no such field set. In this case, the
     element will be appended at the end of the list."""
-    manager = self.__class__._positional_order_manager
     # Is there a position saved? (Explicitly testing None because 0 would be
     # False as well.)
     if self._position == None:
