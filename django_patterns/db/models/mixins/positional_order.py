@@ -66,7 +66,7 @@ class _InjectingModelBase(models.base.ModelBase):
     # Try to add the _position field:
     try:
       # Create the IntegerField:
-      position_field = models.IntegerField(editable=False, unique=True)
+      position_field = models.IntegerField(editable=False, unique=False)
       # Try injecting the _position field into the class:
       try:
         # Attempt to get the `_position` field:
