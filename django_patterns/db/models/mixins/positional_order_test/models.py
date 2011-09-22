@@ -37,8 +37,23 @@ from django.db import models
 from django_patterns.db.models.mixins import PositionalOrderMixin, \
   UUIDStampedMixin
 
-class PositionalOrderModel(PositionalOrderMixin, UUIDStampedMixin):
+class SimplePositionalOrderModel(PositionalOrderMixin, UUIDStampedMixin):
+  """Implements the simplest positional order model possible--a model that
+  simply derives from PositionalOrderMixin. The UUIDStampedMixin is for
+  testing purposes, so that each model instance can be uniquely identified."""
   pass
+
+class SimplePositionalOrderWithEmptyTupleModel(PositionalOrderMixin, UUIDStampedMixin):
+  """A model nearly identical to SimplePositionalOrderModel, testing that if
+  `order_with_respect_to = ()` is specified, the behavior is the same."""
+  class Meta(object):
+    order_with_respect_to = ()
+
+class SimplePositionalOrderWithSelfModel(PositionalOrderMixin, UUIDStampedMixin):
+  """A model nearly identical to SimplePositionalOrderModel, testing that if
+  `order_with_respect_to = 'self'` is specified, the behavior is the same."""
+  class Meta(object):
+    order_with_respect_to = 'self'
 
 # ===----------------------------------------------------------------------===
 # End of File
