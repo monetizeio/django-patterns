@@ -38,7 +38,7 @@ from django.utils import unittest
 
 # The number of instances which are created in the TestCase's setUp() method.
 # Must be a positive integer.
-INSTANCE_COUNT = 5
+INSTANCE_COUNT = 4
 
 from models import *
 
