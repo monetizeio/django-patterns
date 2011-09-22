@@ -464,7 +464,6 @@ class PositionalOrderModelTests(TestCase):
       # Try all permunations of insertions.
       from itertools import permutations
       for elem, other in permutations(xrange(0, size), 2):
-        print (elem, other)
         # Compute the expected result:
         if elem < other:
           oids = oids[:elem] + oids[elem+1:other+1] + [oids[elem]] + oids[other+1:]
