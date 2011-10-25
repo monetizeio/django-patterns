@@ -36,13 +36,12 @@ import django.db.models
 # Django.core, translation
 from django.utils.translation import ugettext_lazy as _
 
-# Django-extensions, additional model fields
-import django_extensions.db.fields
+from django_patterns.db.fields import UUIDField
 
 class UUIDStampedMixin(django.db.models.Model):
   """
   The UUIDStampedMixin leverages the database-independent UUIDField provided
-  by the Django-extensions library, creating a Django model mixin that can be
+  by the Django-patterns library, creating a Django model mixin that can be
   trivially added to the inheritance hierarchy of any abstract or concrete
   Django model, in the following way:
 
@@ -74,13 +73,13 @@ class UUIDStampedMixin(django.db.models.Model):
         immediately seeded with a source of real entropy on first boot, well
         before the web stack is initialized!
   """
-  # The UUIDField is provided by Django-extensions, and handles the details of
+  # The UUIDField is provided by Django-patterns, and handles the details of
   # representing a UUID in various database backends. It is worth noting that
   # some database backends--most notably PostgreSQL--have native support for
   # UUID fields, although at the time of this writing the UUIDField of
-  # Django-extensions is represented as a 36-character CharField regardless of
+  # Django-patterns is represented as a 36-character CharField regardless of
   # the database backend in use.
-  uuid = django_extensions.db.fields.UUIDField(
+  uuid = UUIDField(
     verbose_name = _(u"universally unique identifier"),
     help_text = _(u"""
       An 128-bit identifier with a hard-guarantee of uniqueness among the

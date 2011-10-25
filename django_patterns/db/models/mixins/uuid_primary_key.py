@@ -36,16 +36,15 @@ import django.db.models
 # Django.core, translation
 from django.utils.translation import ugettext_lazy as _
 
-# Django-extensions, additional model fields
-import django_extensions.db.fields
-
 from python_patterns.utils.decorators import Property
+
+from django_patterns.db.fields import UUIDField
 
 class UUIDPrimaryKeyMixin(django.db.models.Model):
   """
   The UUIDPrimaryKeyMixin leverages the database-independent UUIDField
-  provided by the Django-extensions library, creating a Django model mixin
-  that can be trivially added to the inheritance hierarchy of any abstract or
+  provided by the Django-patterns library, creating a Django model mixin that
+  can be trivially added to the inheritance hierarchy of any abstract or
   concrete Django model, in the following way:
 
     class MyModel(UUIDPrimaryKeyMixin):
@@ -79,7 +78,7 @@ class UUIDPrimaryKeyMixin(django.db.models.Model):
   """
   # Please see the documentation accompanying UUIDStampedMixin for an
   # explanation of the UUIDField and the various parameters passed to it.
-  id = django_extensions.db.fields.UUIDField(
+  id = UUIDField(
     verbose_name = _(u"universally unique identifier"),
     help_text = _(u"""
       An 128-bit identifier with a hard-guarantee of uniqueness among the

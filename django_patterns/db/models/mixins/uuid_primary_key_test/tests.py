@@ -35,12 +35,11 @@ import django.core.exceptions
 
 # Django-core, testing
 import django.test
+# Django-patterns
+import django_patterns.db.fields
 
 # Python standard library, unit-testing framework
 from django.utils import unittest
-
-# Django-extensions, additional model fields
-import django_extensions.db.fields
 
 ##
 # The number of instances which are created in the TestCase's setUp() method.
@@ -79,7 +78,7 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
     obj = UUIDPrimaryKeyModel.objects.filter()[0]
     self.assertTrue(isinstance(
       obj._meta._name_map['id'][0],
-      django_extensions.db.fields.UUIDField,
+      django_patterns.db.fields.UUIDField,
     ))
     self.assertEqual(obj.pk, obj.id)
 

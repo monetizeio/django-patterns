@@ -35,9 +35,8 @@ import django.core.exceptions
 
 # Django-core, testing
 import django.test
-
-# Django-extensions, additional model fields
-import django_extensions.db.fields
+# Django-patterns
+import django_patterns.db.fields
 
 ##
 # The number of instances which are created in the TestCase's setUp() method.
@@ -90,7 +89,7 @@ class UUIDStampedModelTests(django.test.TestCase):
     obj = self._model.objects.filter()[0]
     self.assertTrue(isinstance(
       obj._meta._name_map['uuid'][0],
-      django_extensions.db.fields.UUIDField,
+      django_patterns.db.fields.UUIDField,
     ))
 
   def test_uuid_is_unique(self):
