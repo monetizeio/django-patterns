@@ -137,7 +137,7 @@ class UUIDPrimaryKeyMixin(django.db.models.Model):
   ###############
 
   def __unicode__(self):
-    return u"{%s}" % unicode(self.id)
+    return u"%s" % unicode(self.id)
 
   class Meta:
     abstract = True

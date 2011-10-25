@@ -138,7 +138,7 @@ class UUIDStampedMixin(django.db.models.Model):
   ###############
 
   def __unicode__(self):
-    return u"{%s}" % unicode(self.uuid)
+    return u"%s" % unicode(self.uuid)
 
   class Meta:
     abstract = True
