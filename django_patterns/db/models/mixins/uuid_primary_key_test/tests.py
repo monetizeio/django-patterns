@@ -31,6 +31,8 @@
 # ===----------------------------------------------------------------------===
 
 # Django-core, exceptions
+# Python standard library
+import uuid
 import django.core.exceptions
 
 # Django-core, testing
@@ -105,6 +107,12 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
     form = UUIDPrimaryKeyModelForm(objs[0])
     with self.assertRaisesRegexp(KeyError, 'id'):
       form.fields['id'].validate(objs[1].id, objs[0])
+
+  def test_id_is_uuid_instance(self):
+    """Test that accessing the `id` field of a `UUIDPrimaryKeyModel` object
+    returns a Python standard library UUID instance."""
+    obj = UUIDPrimaryKeyModel.objects.filter()[0]
+    self.assertTrue(isinstance(obj.id, uuid.UUID))
 
   def test_uuid_unicode_representation(self):
     """
