@@ -30,20 +30,15 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-# Django-core, exceptions
 # Python standard library
+from django.utils import unittest
 import uuid
+# Django.core
 import django.core.exceptions
-
-# Django-core, testing
 import django.test
 # Django-patterns
 import django_patterns.db.fields
 
-# Python standard library, unit-testing framework
-from django.utils import unittest
-
-##
 # The number of instances which are created in the TestCase's setUp() method.
 # Must be a positive integer.
 INSTANCE_COUNT = 3
@@ -52,11 +47,10 @@ from forms import UUIDPrimaryKeyModelForm
 from models import UUIDPrimaryKeyModel
 
 class UUIDPrimaryKeyModelTests(django.test.TestCase):
-  """
-  Tests models which use UUIDPrimaryKeyMixin to create an automatically
+  """Tests models which use UUIDPrimaryKeyMixin to create an automatically
   assigned and randomly generated UUID as the model instance's ‘id’ primary
-  key.
-  """
+  key."""
+
   def setUp(self):
     super(UUIDPrimaryKeyModelTests, self).setUp()
 
@@ -67,16 +61,12 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
       obj.save()
 
   def test_objects_created_successfully(self):
-    """
-    Tests that UUIDPrimaryKeyModel objects can be successfully created.
-    """
+    """Tests that UUIDPrimaryKeyModel objects can be successfully created."""
     self.assertEqual(UUIDPrimaryKeyModel.objects.filter().count(), INSTANCE_COUNT)
 
   def test_primary_key_is_uuid(self):
-    """
-    Tests that the ‘id’ field of UUIDPrimaryKeyModel (and its alias, ‘pk’)
-    point to the UUID field.
-    """
+    """Tests that the ‘id’ field of UUIDPrimaryKeyModel (and its alias, ‘pk’)
+    point to the UUID field."""
     obj = UUIDPrimaryKeyModel.objects.filter()[0]
     self.assertTrue(isinstance(
       obj._meta._name_map['id'][0],
@@ -85,10 +75,8 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
     self.assertEqual(obj.pk, obj.id)
 
   def test_uuid_is_unique(self):
-    """
-    Tests that two UUIDPrimaryKeyModel objects cannot be created with the same
-    UUID value.
-    """
+    """Tests that two UUIDPrimaryKeyModel objects cannot be created with the
+    same UUID value."""
     obj = UUIDPrimaryKeyModel.objects.filter()[0]
     new_obj = UUIDPrimaryKeyModel()
     new_obj.id = obj.id
@@ -99,10 +87,8 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
     )
 
   def test_uuid_is_not_editable(self):
-    """
-    Tests that ModelForms generated from UUIDPrimaryKeyModel do not contain
-    ‘id’ as an editable field.
-    """
+    """Tests that ModelForms generated from UUIDPrimaryKeyModel do not contain
+    ‘id’ as an editable field."""
     objs = UUIDPrimaryKeyModel.objects.filter()
     form = UUIDPrimaryKeyModelForm(objs[0])
     with self.assertRaisesRegexp(KeyError, 'id'):
@@ -115,20 +101,17 @@ class UUIDPrimaryKeyModelTests(django.test.TestCase):
     self.assertTrue(isinstance(obj.id, uuid.UUID))
 
   def test_uuid_unicode_representation(self):
-    """
-    Test that the unicode representation of an UUIDPrimaryKeyModel object is
-    in standard form.
-    """
+    """Test that the unicode representation of an UUIDPrimaryKeyModel object
+    is in standard form."""
     obj = UUIDPrimaryKeyModel.objects.filter()[0]
     self.assertRegexpMatches(unicode(obj), r'[\w]{8}(-[\w]{4}){3}-[\w]{12}')
 
 from django_patterns.db.models.mixins.uuid_stamped_test import tests
 class UUIDPrimaryKeyAsStampedModelTests(tests.UUIDStampedModelTests):
-  """
-  Tests that models which derive from UUIDPrimaryKeyMixin (whose UUID field is
-  ‘id’ with a @Property alias at ‘uuid’) work as a stand-in for code expecting
-  models derived from UUIDStampedMixin (whose UUID field is ‘uuid’).
-  """
+  """Tests that models which derive from UUIDPrimaryKeyMixin (whose UUID field
+  is ‘id’ with a @Property alias at ‘uuid’) work as a stand-in for code
+  expecting models derived from UUIDStampedMixin (whose UUID field is
+  ‘uuid’)."""
   def __init__(self, *args, **kwargs):
     super(UUIDPrimaryKeyAsStampedModelTests, self).__init__(*args, **kwargs)
     self._model = UUIDPrimaryKeyModel

@@ -30,17 +30,14 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-# Django-core, exceptions
 # Python standard library
 import uuid
+# Django.core
 import django.core.exceptions
-
-# Django-core, testing
 import django.test
 # Django-patterns
 import django_patterns.db.fields
 
-##
 # The number of instances which are created in the TestCase's setUp() method.
 # Must be a positive integer.
 INSTANCE_COUNT = 3
@@ -49,10 +46,9 @@ from forms import UUIDStampedModelForm
 from models import UUIDStampedModel
 
 class UUIDStampedModelTests(django.test.TestCase):
-  """
-  Tests models which use UUIDStampedMixin to create an automatically assigned
-  ‘uuid’ which in this mixin is in addition to the primary key.
-  """
+  """Tests models which use UUIDStampedMixin to create an automatically
+  assigned ‘uuid’ which in this mixin is in addition to the primary key."""
+
   def __init__(self, *args, **kwargs):
     super(UUIDStampedModelTests, self).__init__(*args, **kwargs)
     self._model = UUIDStampedModel
@@ -60,7 +56,6 @@ class UUIDStampedModelTests(django.test.TestCase):
 
   def setUp(self):
     super(UUIDStampedModelTests, self).setUp()
-
     # Multiple objects are generated in order to test the auto-generation and
     # uniqueness features of the UUID field.
     for i in range(0, INSTANCE_COUNT):
@@ -68,15 +63,12 @@ class UUIDStampedModelTests(django.test.TestCase):
       obj.save()
 
   def test_objects_created_successfully(self):
-    """
-    Tests that UUIDStampedModel objects can be successfully created.
-    """
+    """Tests that UUIDStampedModel objects can be successfully created."""
     self.assertEqual(self._model.objects.filter().count(), INSTANCE_COUNT)
 
   def test_uuid_exists_as_field(self):
-    """
-    Tests that the ‘uuid’ attribute exists on UUIDStampedModel instances.
-    """
+    """Tests that the ‘uuid’ attribute exists on UUIDStampedModel
+    instances."""
     obj = self._model.objects.filter()[0]
     try:
       obj.uuid
@@ -84,10 +76,8 @@ class UUIDStampedModelTests(django.test.TestCase):
       self.assertTrue(False)
 
   def test_uuid_field_is_uuid(self):
-    """
-    Tests that the ‘uuid’ attribute on UUIDStampedModel instances is in fact
-    a UUID field.
-    """
+    """Tests that the ‘uuid’ attribute on UUIDStampedModel instances is in
+    fact a UUID field."""
     obj = self._model.objects.filter()[0]
     self.assertTrue(isinstance(
       obj._meta._name_map['uuid'][0],
@@ -95,10 +85,8 @@ class UUIDStampedModelTests(django.test.TestCase):
     ))
 
   def test_uuid_is_unique(self):
-    """
-    Tests that two UUIDStampedModel objects cannot be created with the same
-    UUID value.
-    """
+    """Tests that two UUIDStampedModel objects cannot be created with the same
+    UUID value."""
     obj = self._model.objects.filter()[0]
     new_obj = self._model()
     new_obj.uuid = obj.uuid
@@ -109,10 +97,8 @@ class UUIDStampedModelTests(django.test.TestCase):
     )
 
   def test_uuid_is_not_editable(self):
-    """
-    Tests that ModelForms generated from UUIDStampedModel do not contain
-    ‘uuid’ as an editable field.
-    """
+    """Tests that ModelForms generated from UUIDStampedModel do not contain
+    ‘uuid’ as an editable field."""
     objs = self._model.objects.filter()
     form = self._form(objs[0])
     with self.assertRaisesRegexp(KeyError, 'uuid'):
@@ -125,10 +111,8 @@ class UUIDStampedModelTests(django.test.TestCase):
     self.assertTrue(isinstance(obj.uuid, uuid.UUID))
 
   def test_uuid_unicode_representation(self):
-    """
-    Test that the unicode representation of an UUIDStampedModel object is in
-    standard form.
-    """
+    """Test that the unicode representation of an UUIDStampedModel object is in
+    standard form."""
     obj = self._model.objects.filter()[0]
     self.assertRegexpMatches(unicode(obj), r'[\w]{8}(-[\w]{4}){3}-[\w]{12}')
 
