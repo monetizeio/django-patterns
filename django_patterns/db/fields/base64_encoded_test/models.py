@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.fields -------------------------------------------===
+# === django_patterns.db.fields.base64_encoded_test.models ----------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 # as an unpublished work.
 #
@@ -30,13 +30,19 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-from base64_encoded import Base64EncodedField
-from uuid_field     import UUIDField
+# Django.core
+from django.db.models import Model
+# Django-patterns
+from django_patterns.db.fields import Base64EncodedField
 
-__all__ = [
-  'Base64EncodedField',
-  'UUIDField',
-]
+class Base64EncodedModel(Model):
+  """A simple model which contains a single Base64EncodedField, with default
+  options."""
+  base64 = Base64EncodedField()
+
+  class Meta(object):
+    ordering     = ['base64']
+    verbose_name = u"Base64-encoded model"
 
 # ===----------------------------------------------------------------------===
 # End of File

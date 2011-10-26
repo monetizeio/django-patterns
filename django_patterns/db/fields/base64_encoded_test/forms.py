@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.fields -------------------------------------------===
+# === django_patterns.db.fields.base64_encoded_test.forms -----------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 # as an unpublished work.
 #
@@ -30,13 +30,16 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-from base64_encoded import Base64EncodedField
-from uuid_field     import UUIDField
+# Django.core
+from django.forms import ModelForm
 
-__all__ = [
-  'Base64EncodedField',
-  'UUIDField',
-]
+from models import Base64EncodedModel
+
+class Base64EncodedModelForm(ModelForm):
+  """A standard ModelForm generated from Base64EncodedModel, with all the
+  default configurations."""
+  class Meta(object):
+    model = Base64EncodedModel
 
 # ===----------------------------------------------------------------------===
 # End of File

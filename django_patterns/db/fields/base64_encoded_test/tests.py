@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.fields -------------------------------------------===
+# === django_patterns.db.fields.base64_encoded_test.tests -----------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 # as an unpublished work.
 #
@@ -30,13 +30,60 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-from base64_encoded import Base64EncodedField
-from uuid_field     import UUIDField
+# Python standard library
+import uuid
+# Django.core
+import django.core.exceptions
+import django.test
+# Django-patterns
+import django_patterns.db.fields
 
-__all__ = [
-  'Base64EncodedField',
-  'UUIDField',
-]
+from forms import Base64EncodedModelForm
+from models import Base64EncodedModel
+
+class Base64EncodedModelTests(django.test.TestCase):
+  "Tests models which have a Base64-encoded field with default options."
+
+  def __init__(self, *args, **kwargs):
+    super(Base64EncodedModelTests, self).__init__(*args, **kwargs)
+    self._model = Base64EncodedModel
+    self._form  = Base64EncodedModelForm
+
+  def test_empty(self):
+    "Test the empty string."
+    s = ''
+    obj = self._model()
+    obj.base64 = s
+    obj.save()
+    self.assertTrue(isinstance(obj.base64, basestring))
+    self.assertEqual(obj.base64, s)
+
+  def test_zero(self):
+    "Test a string containing the zero byte."
+    s = '\x00abc\x00123\x00\x00abc123\x00'
+    obj = self._model()
+    obj.base64 = s
+    obj.save()
+    self.assertTrue(isinstance(obj.base64, basestring))
+    self.assertEqual(obj.base64, s)
+
+  def test_string(self):
+    "Test a long, effectively random ASCII string."
+    s = '123abc#'*137
+    obj = self._model()
+    obj.base64 = s
+    obj.save()
+    self.assertTrue(isinstance(obj.base64, basestring))
+    self.assertEqual(obj.base64, s)
+
+  def test_unicode(self):
+    "Test a unicode string."
+    s = u'elespañol, lefrançais, עברית, & 日本語'
+    obj = self._model()
+    obj.base64 = s
+    obj.save()
+    self.assertTrue(isinstance(obj.base64, unicode))
+    self.assertEqual(obj.base64, s)
 
 # ===----------------------------------------------------------------------===
 # End of File

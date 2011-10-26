@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === django_patterns.db.fields -------------------------------------------===
+# === django_patterns.db.fields.base64_encoded_test -----------------------===
 # Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
 # as an unpublished work.
 #
@@ -29,14 +29,6 @@
 # RIGHTS TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE,
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
-
-from base64_encoded import Base64EncodedField
-from uuid_field     import UUIDField
-
-__all__ = [
-  'Base64EncodedField',
-  'UUIDField',
-]
 
 # ===----------------------------------------------------------------------===
 # End of File
