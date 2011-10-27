@@ -130,7 +130,7 @@ class UUIDField(CharField):
 
   def pre_save(self, model_instance, add):
     """"""
-    if self.auto and add:
+    if self.auto and add and not getattr(model_instance, self.attname, None):
       value = self.create_uuid()
       setattr(model_instance, self.attname, value)
       return value
