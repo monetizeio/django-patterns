@@ -57,8 +57,9 @@ class Base64EncodedField(TextField):
     # values. To protect against decoding twice (which may or may not raise an
     # exception), a prefix is added to encoded values and we check for that
     # here:
-    if value.startswith(self._prefix):
-      value = decodestring(value[len(self._prefix):])
+    if value is not None:
+      if value.startswith(self._prefix):
+        value = decodestring(value[len(self._prefix):])
     return value
 
   def get_prep_value(self, value):
@@ -67,10 +68,11 @@ class Base64EncodedField(TextField):
     # `get_db_pref_save()` can (and is) called with values that have already
     # been encoded. We detect that by adding a prefix (which is removed by
     # `to_python()`):
-    if not value.startswith(self._prefix):
-      if isinstance(value, unicode):
-        value = value.encode('utf-8')
-      value = self._prefix + encodestring(value)
+    if value is not None:
+      if not value.startswith(self._prefix):
+        if isinstance(value, unicode):
+          value = value.encode('utf-8')
+        value = self._prefix + encodestring(value)
     return value
 
   def south_field_triple(self):
