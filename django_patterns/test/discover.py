@@ -43,9 +43,14 @@ def discover_test_apps(module):
   import os
   import sys
   import subprocess
+  argv = []
+  for arg in sys.argv:
+    if arg.startswith('--settings=') or arg.startswith('--pythonpath'):
+      argv.append(arg)
   argv = [
     os.path.abspath(os.path.join(os.getcwd(), sys.argv[0])),
     "discover_unittest_modules",
+    ] + argv + [
     module,
   ]
   if argv[0] != os.path.abspath(sys.argv[0]) or argv[1] != sys.argv[1]:
