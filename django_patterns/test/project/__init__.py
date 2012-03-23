@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # === django_patterns.test.project ----------------------------------------===
-# Copyright © 2011, RokuSigma Inc. (Mark Friedenbach <mark@roku-sigma.com>)
-# as an unpublished work.
+# Copyright © 2011-2012, RokuSigma Inc. and contributors as an unpublished
+# work. See AUTHORS for details.
 #
 # RokuSigma Inc. (the “Company”) Confidential
 #

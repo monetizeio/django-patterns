@@ -1,0 +1,8 @@
+The primary author of Django-patterns is Mark Friedenbach
+<mark@roku-sigma.com>.
+
+Others who have contributed to this application:
+
+ * Leonidas (author of PositionalOrderMixin)
+ * Michal Ludvig <michal@logix.cz> (author of ``macros`` template tag library)
+ * Michael Trier (author of UUIDField)
