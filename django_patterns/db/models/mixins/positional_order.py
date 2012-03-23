@@ -74,7 +74,7 @@ class _InjectingModelBase(models.base.ModelBase):
       # to specify `order_with_respect_to` as a string specifying a single
       # attribute. Note that in Python 2.x `isinstance(obj,str)` is not the
       # same as `isinstance(obj,unicode)`.
-      if isinstance(owrt, str) or isinstance(owrt, unicode):
+      if isinstance(owrt, basestring):
         owrt = (owrt,)
       else:
         owrt = tuple(owrt)
