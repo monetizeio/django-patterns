@@ -30,13 +30,15 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-"""This module provides PositionalOrderMixin, a mixin for Django models which
+"""
+This module provides PositionalOrderMixin, a mixin for Django models which
 provides automatic ordering based on an injected `_position` integer field.
 This pattern provides a superset of the functionality of Django's built-in
 `order_with_respect_to` Meta option, and is based on the following Django
 snippet (heavily modified):
 
-<http://djangosnippets.org/snippets/259/>"""
+<http://djangosnippets.org/snippets/259/>
+"""
 
 # Django.core, object-relational mapper
 from django.db import models, transaction

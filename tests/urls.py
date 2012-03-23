@@ -30,7 +30,6 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-##
 # Import the default test urls provided by django_patterns.
 from django_patterns.test.project.urls import *
 

@@ -30,8 +30,7 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-"""Mixins providing serialized output by default for `repr()` on Django
-models."""
+"Mixins providing serialized output by default for `repr()` on Django models."
 
 # Django.core, object-relational mapper
 from django.db.models import Model

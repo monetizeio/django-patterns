@@ -36,7 +36,6 @@ from distutils.core import setup
 
 from django_patterns import get_version
 
-##
 # Compile the list of packages available, because distutils doesn't have an
 # easy way to do this.
 packages, data_files = [], []

@@ -30,9 +30,11 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-"""Extends the shell_plus command provided by django_extensions to include
-added features, such as initialization of the database when using an in-memory
-SQLite instance."""
+"""
+Extends the shell_plus command provided by django_extensions to include added
+features, such as initialization of the database when using an in-memory
+SQLite instance.
+"""
 
 # Django-extensions, management commands
 from django_extensions.management.commands import shell_plus

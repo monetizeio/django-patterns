@@ -31,8 +31,8 @@
 # ===----------------------------------------------------------------------===
 
 from positional_order import PositionalOrderMixin
-from serialized_repr  import SerializedReprMixin, XMLSerializedReprMixin, \
-  JSONSerializedReprMixin, YAMLSerializedReprMixin
+from serialized_repr  import (SerializedReprMixin, XMLSerializedReprMixin,
+  JSONSerializedReprMixin, YAMLSerializedReprMixin)
 from uuid_primary_key import UUIDPrimaryKeyMixin
 from uuid_stamped     import UUIDStampedMixin
 

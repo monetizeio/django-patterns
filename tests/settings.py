@@ -30,15 +30,12 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-##
 # Add the directory containing django_patterns to the Python path.
 import path_hack
 
-##
 # Import the default test settings provided by django_patterns.
 from django_patterns.test.project.settings import *
 
-##
 # Use django_patterns to detect embedded Django test applications, and add
 # them to our INSTALLED_APPS.
 from django_patterns.test.discover import discover_test_apps

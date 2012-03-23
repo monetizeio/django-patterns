@@ -30,14 +30,12 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-##
 # PROJECT_DIRECTORY is the directory on the file system which contains the
 # Django project this settings file is a part of. It is used so many times
 # that it deserves its own variable for efficiency and clarity.
 import os
 PROJECT_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 
-##
 # We need the module django_patterns to be accessible from the Python path. Do
 # not use this as an example of what to do in your own projects! Under normal
 # circumstances this is most properly done using virtualenv and pip to install

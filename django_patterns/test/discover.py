@@ -30,7 +30,6 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-##
 # In the django_patterns way of doing things, small testing applications
 # reside throughout the source tree, close to the code which they are testing.
 # In order for models defiend within these test applications to be created by
