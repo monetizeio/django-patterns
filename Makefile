@@ -33,7 +33,7 @@ all: .pkg/.stamp-h
 .PHONY: check
 check: .pkg/.stamp-h
 	mkdir -p build/report
-	.pkg/bin/python -Wall tests/manage.py test \
+	.pkg/bin/python -Wall manage.py test \
 	  --settings=tests.settings \
 	  --with-xunit \
 	  --xunit-file="build/report/xunit.xml" \
@@ -47,7 +47,7 @@ check: .pkg/.stamp-h
 
 .PHONY: shell
 shell: .pkg/.stamp-h
-	.pkg/bin/python tests/manage.py shell_plusplus \
+	.pkg/bin/python manage.py shell_plusplus \
 	  --print-sql \
 	  --ipython
 

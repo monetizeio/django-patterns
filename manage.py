@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# === tests/path_hack.py --------------------------------------------------===
+# === tests/manage.py -----------------------------------------------------===
 # Copyright © 2011-2012, RokuSigma Inc. and contributors as an unpublished
 # work. See AUTHORS for details.
 #
@@ -30,19 +30,26 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-# PROJECT_DIRECTORY is the directory on the file system which contains the
-# Django project this settings file is a part of. It is used so many times
-# that it deserves its own variable for efficiency and clarity.
 import os
-PROJECT_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
-
-# We need the module django_patterns to be accessible from the Python path. Do
-# not use this as an example of what to do in your own projects! Under normal
-# circumstances this is most properly done using virtualenv and pip to install
-# django_patterns into the site-packages directory of a project-specific
-# virtual environment.
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(PROJECT_DIRECTORY, '..')))
+
+try:
+  from django.core.management import execute_from_command_line
+except ImportError:
+  sys.stderr.write(
+    # The following is not transalated because in this particular error
+    # condition ``sys.path`` is probably not setup correctly, and so we cannot
+    # be sure that we'd import the translation machinery correctly. It'd be
+    # better to print the correct error in English than to trigger another
+    # not-so-helpful ImportError.
+    u"Error: Can't find the module 'django.core.management' in the Python "
+    u"path. Please execute this script from within the virtual environment "
+    u"containing your project.\n")
+  sys.exit(1)
+
+if __name__ == '__main__':
+  os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests.settings')
+  execute_from_command_line(sys.argv)
 
 # ===----------------------------------------------------------------------===
 # End of File

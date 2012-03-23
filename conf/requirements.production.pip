@@ -1,3 +1,3 @@
-Django==1.3.1
+Django==1.4
 django-extensions==0.8
 -e git+ssh://git@git.roku-sigma.com/python-patterns@73e24a9de9cc38cc517d53aad47d7979aa1a3d6d#egg=python_patterns-dev

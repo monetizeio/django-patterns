@@ -30,7 +30,7 @@
 # USE, OR SELL ANYTHING THAT IT MAY DESCRIBE, IN WHOLE OR IN PART.
 # ===----------------------------------------------------------------------===
 
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
