@@ -75,14 +75,13 @@ class OneToOnePositionalOrderModel(PositionalOrderMixin, UUIDStampedMixin):
     order_with_respect_to = ('other',)
 
 class ForeignKeyPositionalOrderModel(PositionalOrderMixin, UUIDStampedMixin):
-  """Tests a model using positional order with respect to a ForeignKey
-  field."""
+  "Tests a model using positional order with respect to a ForeignKey field."
   other = ForeignKey(RelatedKeyModel)
   class Meta(object):
     order_with_respect_to = ('other',)
 
 class SelfReferentialPositionalOrderModel(PositionalOrderMixin, UUIDStampedMixin):
-  """Test a model using positional order with respect to itself."""
+  "Test a model using positional order with respect to itself."
   parent = ForeignKey('self', related_name='children', null=True)
   class Meta:
     order_with_respect_to = ('parent',)
@@ -126,11 +125,9 @@ class IntegerPositionalOrderModel(PositionalOrderMixin, UUIDStampedMixin):
     order_with_respect_to = ('playlist',)
 
 class Poll(Model):
-  """"""
   question = CharField(help_text=_(u"poll question"), max_length=200)
   pub_date = DateTimeField(help_text=_(u"date published"))
 class PollChoicePositionalOrderModel(PositionalOrderMixin, UUIDStampedMixin):
-  """"""
   poll = ForeignKey(Poll, help_text=_(u"answer choice for a poll"))
   choice = CharField(help_text=_(u"poll choice"), max_length=200)
   votes = IntegerField(help_text=_(u"number of votes"))
@@ -138,28 +135,23 @@ class PollChoicePositionalOrderModel(PositionalOrderMixin, UUIDStampedMixin):
     order_with_respect_to = ('poll')
 
 class Writer(Model):
-  """"""
   name = CharField(max_length=50, help_text='Use both first and last names.')
 class BookPositionalOrderByAuthorModel(PositionalOrderMixin, UUIDStampedMixin):
-  """"""
   author = ForeignKey(Writer, blank=True, null=True)
   title = CharField(max_length=80)
   isbn = CharField(max_length=16, unique=True)
   class Meta:
     order_with_respect_to = ('author',)
 class BookPositionalOrderByWorkModel(BookPositionalOrderByAuthorModel):
-  """"""
   class Meta:
     order_with_respect_to = ('author', 'title')
 class ReversedBookPositionalOrderByWorkModel(PositionalOrderMixin, UUIDStampedMixin):
-  """"""
   author = ForeignKey(Writer, blank=True, null=True)
   title = CharField(max_length=80)
   isbn = CharField(max_length=16, unique=True)
   class Meta:
     order_with_respect_to = ('author', 'title')
 class ReversedBookPositionalOrderByAuthorModel(ReversedBookPositionalOrderByWorkModel):
-  """"""
   class Meta:
     order_with_respect_to = ('author',)
 

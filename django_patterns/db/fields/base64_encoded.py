@@ -33,11 +33,9 @@
 # DOCUMENTATION, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ===----------------------------------------------------------------------===
 
-"""
-Base64-encoded fields provide a method for storing variable-length, format-
+"""Base64-encoded fields provide a method for storing variable-length, format-
 unspecified binary objects (“blobs”) in a database-agnostic way (wrapped in
-ASCII armor and placed in a `TextField`).
-"""
+ASCII armor and placed in a `TextField`)."""
 
 # Django-core, variable-length text field
 from django.db.models import SubfieldBase, TextField

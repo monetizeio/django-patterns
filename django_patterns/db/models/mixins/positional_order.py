@@ -33,15 +33,13 @@
 # DOCUMENTATION, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ===----------------------------------------------------------------------===
 
-"""
-This module provides PositionalOrderMixin, a mixin for Django models which
+"""This module provides PositionalOrderMixin, a mixin for Django models which
 provides automatic ordering based on an injected `_position` integer field.
 This pattern provides a superset of the functionality of Django's built-in
 `order_with_respect_to` Meta option, and is based on the following Django
 snippet (heavily modified):
 
-<http://djangosnippets.org/snippets/259/>
-"""
+<http://djangosnippets.org/snippets/259/>"""
 
 # Django.core, object-relational mapper
 from django.db import models, transaction
@@ -204,7 +202,7 @@ class PositionalOrderMixin(models.Model):
 
   @classmethod
   def get_front(cls, *args, **kwargs):
-    """Return the first element in the list."""
+    "Return the first element in the list."
     # Combine args and kwargs based on `order_with_respect_to`:
     kwargs = _match_args(cls._positional_order_with_respect_to, *args, **kwargs)
     manager = cls._positional_order_manager
@@ -212,15 +210,14 @@ class PositionalOrderMixin(models.Model):
 
   @classmethod
   def get_back(cls, *args, **kwargs):
-    """Return the last element in the list."""
+    "Return the last element in the list."
     # Combine args and kwargs based on `order_with_respect_to`:
     kwargs = _match_args(cls._positional_order_with_respect_to, *args, **kwargs)
     manager = cls._positional_order_manager
     return manager.filter(**kwargs).reverse()[:1].get()
 
   def get_object_at_offset(self, offset):
-    """Get the object whose position is `offset` positions away from my
-    own."""
+    "Get the object whose position is `offset` positions away from my own."
     kwargs = self.get_positional_list_kwargs()
     manager = self.__class__._positional_order_manager
     return manager.get(_position = self._position + offset, **kwargs)
@@ -242,7 +239,7 @@ class PositionalOrderMixin(models.Model):
       return None
 
   def move_down(self):
-    """Move element down one position."""
+    "Move element down one position."
     # Get the element after this one.
     one_after = self.get_next()
     if one_after is not None:
@@ -250,7 +247,7 @@ class PositionalOrderMixin(models.Model):
       self.swap(one_after)
 
   def move_up(self):
-    """Move element up one position."""
+    "Move element up one position."
     # Get the element before this one.
     one_before = self.get_prev()
     if one_before is not None:
@@ -258,17 +255,17 @@ class PositionalOrderMixin(models.Model):
       self.swap(one_before)
 
   def move_to_front(self):
-    """Move element to the front of the list."""
+    "Move element to the front of the list."
     return self.insert_at(0)
 
   def move_to_back(self):
-    """Move element to the end of the list."""
+    "Move element to the end of the list."
     kwargs = self.get_positional_list_kwargs()
     return self.insert_at(self.get_back(**kwargs)._position)
 
   @transaction.commit_on_success
   def insert_at(self, position):
-    """Moves the object to a specified position."""
+    "Moves the object to a specified position."
     kwargs = self.get_positional_list_kwargs()
     manager = self.__class__._positional_order_manager
     # Get the size of the list:
@@ -328,7 +325,7 @@ class PositionalOrderMixin(models.Model):
 
   @transaction.commit_on_success
   def swap(self, other):
-    """Swaps the position with some other class instance"""
+    "Swaps the position with some other class instance"
     # Save the current position:
     current_position = self._position
     # Set own position to special, temporary position:
@@ -359,7 +356,7 @@ class PositionalOrderMixin(models.Model):
     return super(PositionalOrderMixin, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    """Deletes the item from the list."""
+    "Deletes the item from the list."
     manager = self.__class__._positional_order_manager
     # get all objects with a position greater than this objects position
     objects_after = manager.filter(_position__gt=self._position,

@@ -55,8 +55,6 @@
 # THE SOFTWARE.
 # ===----------------------------------------------------------------------===
 
-""
-
 from django.db.models import SubfieldBase, CharField
 
 import uuid
@@ -86,7 +84,6 @@ class UUIDField(CharField):
     node         = None,
     clock_seq    = None,
     namespace    = None, **kwargs):
-    ""
     kwargs['max_length'] = 36
     if auto:
       kwargs['blank'] = True
@@ -100,13 +97,11 @@ class UUIDField(CharField):
     CharField.__init__(self, verbose_name, name, **kwargs)
 
   def get_internal_type(self):
-    ""
     # FIXME: Should later expand to include UUID types if the database
     #        supports it.
     return CharField.__name__
 
   def contribute_to_class(self, cls, name):
-    ""
     if self.primary_key:
       assert not cls._meta.has_auto_field, \
         "A model can't have more than one AutoField: %s %s %s; have %s" % \
@@ -117,7 +112,6 @@ class UUIDField(CharField):
       cls._meta.auto_field = self
 
   def create_uuid(self):
-    ""
     if not self.version or self.version == 4:
       return uuid.uuid4()
     elif self.version == 1:
@@ -132,7 +126,6 @@ class UUIDField(CharField):
       raise UUIDVersionError("UUID version %s is not valid." % self.version)
 
   def pre_save(self, model_instance, add):
-    ""
     if self.auto and add and not getattr(model_instance, self.attname, None):
       value = self.create_uuid()
       setattr(model_instance, self.attname, value)
@@ -145,7 +138,6 @@ class UUIDField(CharField):
     return value
 
   def to_python(self, value):
-    ""
     # For some inane reason `to_python()` is often called with already decoded
     # values. We protect against this by first checking if the passed in value
     # is an instance of `uuid.UUID`.
@@ -154,7 +146,6 @@ class UUIDField(CharField):
     return value
 
   def get_prep_value(self, value):
-    ""
     # `get_db_pref_save()` can (and is) called with values that have already
     # been prepared. So we only prepare values which are instances of
     # `uuid.UUID`:
@@ -163,7 +154,6 @@ class UUIDField(CharField):
     return value
 
   def south_field_triple(self):
-    ""
     "Returns a suitable description of this field for South."
     # We'll just introspect the _actual_ field.
     from south.modelsinspector import introspector
