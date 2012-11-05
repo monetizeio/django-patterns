@@ -146,7 +146,7 @@ class UUIDField(CharField):
     return value
 
   def get_prep_value(self, value):
-    # `get_db_pref_save()` can (and is) called with values that have already
+    # `get_db_prep_save()` can (and is) called with values that have already
     # been prepared. So we only prepare values which are instances of
     # `uuid.UUID`:
     if isinstance(value, uuid.UUID):
