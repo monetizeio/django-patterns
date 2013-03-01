@@ -55,11 +55,17 @@
 # THE SOFTWARE.
 # ===----------------------------------------------------------------------===
 
-from django.db.models import SubfieldBase, CharField
-
 import uuid
 
+from django.db.models import SubfieldBase, CharField
+
 class UUIDVersionError(Exception):
+  pass
+
+try:
+  import psycopg2.extras
+  psycopg2.extras.register_uuid()
+except ImportError:
   pass
 
 class UUIDField(CharField):
@@ -94,12 +100,15 @@ class UUIDField(CharField):
       self.node, self.clock_seq = node, clock_seq
     elif version == 3 or version == 5:
       self.namespace, self.name = namespace, name
-    CharField.__init__(self, verbose_name, name, **kwargs)
+    super(UUIDField, self).__init__(verbose_name, name, **kwargs)
+
+  def db_type(self, connection, *args, **kwargs):
+    if 'postgres' in connection.settings_dict['ENGINE']:
+      return 'uuid'
+    return super(UUIDField, self).db_type(connection, *args, **kwargs)
 
   def get_internal_type(self):
-    # FIXME: Should later expand to include UUID types if the database
-    #        supports it.
-    return CharField.__name__
+    return "CharField"
 
   def contribute_to_class(self, cls, name):
     if self.primary_key:
@@ -137,6 +146,11 @@ class UUIDField(CharField):
         setattr(model_instance, self.attname, value)
     return value
 
+  def db_type(self, connection):
+    if 'postgres' in connection.settings_dict['ENGINE']:
+      return 'uuid'
+    return super(UUIDField, self).db_type(connection)
+
   def to_python(self, value):
     # For some inane reason `to_python()` is often called with already decoded
     # values. We protect against this by first checking if the passed in value
@@ -145,10 +159,12 @@ class UUIDField(CharField):
       value = uuid.UUID(value)
     return value
 
-  def get_prep_value(self, value):
+  def get_db_prep_value(self, value, connection, prepared=False):
     # `get_db_prep_save()` can (and is) called with values that have already
     # been prepared. So we only prepare values which are instances of
     # `uuid.UUID`:
+    if 'postgres' in connection.settings_dict['ENGINE']:
+      return self.to_python(value)
     if isinstance(value, uuid.UUID):
       value = unicode(value)
     return value
