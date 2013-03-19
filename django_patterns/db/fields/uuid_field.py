@@ -164,7 +164,7 @@ class UUIDField(CharField):
     # been prepared. So we only prepare values which are instances of
     # `uuid.UUID`:
     if 'postgres' in connection.settings_dict['ENGINE']:
-      return self.to_python(value)
+      return self.to_python(value) or None
     if isinstance(value, uuid.UUID):
       value = unicode(value)
     return value
